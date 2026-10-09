@@ -2,21 +2,21 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Regia Sky - Live Score Bug</title>
+  <title>Regia Sky - Live Score Calcolo Automatico</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
       background: #121824;
       color: white;
       padding: 20px;
-      max-width: 500px;
+      max-width: 600px;
       margin: 0 auto;
     }
     h1 { color: #38b6ff; text-align: center; font-size: 20px; }
     .card { background: #1a202c; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
     .form-group { margin-bottom: 10px; }
     label { display: block; margin-bottom: 4px; color: #a0aec0; font-size: 13px; font-weight: bold; }
-    input[type="text"], input[type="number"], select {
+    input[type="text"], input[type="number"] {
       width: 100%;
       padding: 8px;
       border-radius: 5px;
@@ -31,88 +31,68 @@
     .btn-hide { background: #e53e3e; color: white; }
     .btn-yellow { background: #ecc94b; color: #000; }
     .btn-green { background: #48bb78; color: white; }
-    .elements-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 10px; }
-    .elements-grid select { padding: 4px; font-size: 11px; text-align: center; }
+
+    /* Griglia 7 Elementi */
+    .element-row {
+      display: grid;
+      grid-template-columns: 30px 1fr 1fr 30px;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .element-row span { font-weight: bold; color: #38b6ff; }
+    .status-indicator { font-size: 18px; text-align: center; }
   </style>
 </head>
 <body>
 
-  <h1>🎛️ Regia Live Score Bug</h1>
+  <h1>🎛️ Regia Punti (Calcolo & GOE Automatico)</h1>
 
-  <!-- Leader in Classifica -->
+  <!-- Leader -->
   <div class="card">
-    <h3 style="color: #38b6ff; margin-top: 0;">🥇 Leader Attuale (1° Posto)</h3>
+    <h3 style="color: #38b6ff; margin-top: 0;">🥇 Leader Attuale</h3>
     <div class="form-group">
-      <label><input type="checkbox" id="isFirstAthlete" onchange="sendLiveScore(true)"> Prima atleta in gara (Nasconde Leader)</label>
+      <label><input type="checkbox" id="isFirstAthlete" onchange="calcAndSend(true)"> Prima atleta in gara (Nasconde Leader)</label>
     </div>
-    <div class="form-group">
-      <label>Nazione (es. CHN):</label>
-      <input type="text" id="leaderCountry" value="CHN">
-    </div>
-    <div class="form-group">
-      <label>Bandiera ISO (es. cn):</label>
-      <input type="text" id="leaderFlag" value="cn">
-    </div>
-    <div class="form-group">
-      <label>Cognome Leader:</label>
-      <input type="text" id="leaderName" value="ZHANG">
-    </div>
-    <div class="form-group">
-      <label>Punteggio Leader:</label>
-      <input type="number" step="0.01" id="leaderScore" value="61.54">
+    <div style="display:flex; gap:10px;">
+      <input type="text" id="leaderCountry" value="CHN" placeholder="Nazione">
+      <input type="text" id="leaderFlag" value="cn" placeholder="Bandiera">
+      <input type="text" id="leaderName" value="ZHANG" placeholder="Cognome">
+      <input type="number" step="0.01" id="leaderScore" value="61.54" placeholder="Punteggio">
     </div>
   </div>
 
-  <!-- Atleta in Pista -->
+  <!-- Atleta Corrente -->
   <div class="card">
-    <h3 style="color: #38b6ff; margin-top: 0;">⛸️ Atleta in Pista</h3>
-    <div class="form-group">
-      <label>Nazione (es. ITA):</label>
-      <input type="text" id="currentCountry" value="ITA">
-    </div>
-    <div class="form-group">
-      <label>Bandiera ISO (es. it):</label>
-      <input type="text" id="currentFlag" value="it">
-    </div>
-    <div class="form-group">
-      <label>Cognome Atleta:</label>
-      <input type="text" id="currentName" value="GUTMANN">
-    </div>
-    <div class="form-group">
-      <label>Base Value (Valore Base):</label>
-      <input type="number" step="0.01" id="baseScore" value="10.70" oninput="sendLiveScore(true)">
-    </div>
-    <div class="form-group">
-      <label>Execution (GOE):</label>
-      <input type="number" step="0.01" id="goeScore" value="1.18" oninput="sendLiveScore(true)">
+    <h3 style="color: #38b6ff; margin-top: 0;">👤 Atleta in Pista</h3>
+    <div style="display:flex; gap:10px;">
+      <input type="text" id="currentCountry" value="ITA" placeholder="Nazione">
+      <input type="text" id="currentFlag" value="it" placeholder="Bandiera">
+      <input type="text" id="currentName" value="GUTMANN" placeholder="Cognome">
     </div>
   </div>
 
-  <!-- Quadrati Elementi -->
+  <!-- Tabella 7 Elementi -->
   <div class="card">
-    <h3 style="color: #38b6ff; margin-top: 0;">🟩 Valutazione Elementi (7 Saliti/Stacchi)</h3>
-    <label>Stato Elementi (Grigio, Verde, Rosso, Giallo):</label>
-    <div class="elements-grid">
-      <select id="el0" onchange="sendLiveScore(true)"><option value="">1</option><option value="green">🟩</option><option value="red">🟥</option><option value="yellow">🟨</option></select>
-      <select id="el1" onchange="sendLiveScore(true)"><option value="">2</option><option value="green">🟩</option><option value="red">🟥</option><option value="yellow">🟨</option></select>
-      <select id="el2" onchange="sendLiveScore(true)"><option value="">3</option><option value="green">🟩</option><option value="red">🟥</option><option value="yellow">🟨</option></select>
-      <select id="el3" onchange="sendLiveScore(true)"><option value="">4</option><option value="green">🟩</option><option value="red">🟥</option><option value="yellow">🟨</option></select>
-      <select id="el4" onchange="sendLiveScore(true)"><option value="">5</option><option value="green">🟩</option><option value="red">🟥</option><option value="yellow">🟨</option></select>
-      <select id="el5" onchange="sendLiveScore(true)"><option value="">6</option><option value="green">🟩</option><option value="red">🟥</option><option value="yellow">🟨</option></select>
-      <select id="el6" onchange="sendLiveScore(true)"><option value="">7</option><option value="green">🟩</option><option value="red">🟥</option><option value="yellow">🟨</option></select>
+    <h3 style="color: #38b6ff; margin-top: 0;">⛸️ Tabella 7 Elementi (Valutazione)</h3>
+    <p style="font-size:12px; color:#a0aec0;">Inserisci Base e GOE. Il colore del quadrato e la somma totale si calcolano da soli!</p>
+
+    <div id="elementsContainer"></div>
+
+    <div style="margin-top:15px; font-size:16px; font-weight:bold; color:#ecc94b; text-align:right;">
+      TOTALE TECNICO CUMULATIVO: <span id="totalDisplay">0.00</span>
     </div>
   </div>
 
-  <!-- Controlli Posizione e Visibilità -->
+  <!-- Controlli -->
   <div class="card">
-    <h3 style="color: #38b6ff; margin-top: 0;">🎬 Controlli Regia</h3>
     <div class="btn-group">
-      <button class="btn-yellow" onclick="toggleCompact(true)">⬅️ COMPATTA (Punti a sx)</button>
-      <button class="btn-green" onclick="toggleCompact(false)">➡️ ESPANDI (Punti a dx)</button>
+      <button class="btn-yellow" onclick="toggleCompact(true)">⬅️ COMPATTA</button>
+      <button class="btn-green" onclick="toggleCompact(false)">➡️ ESPANDI</button>
     </div>
     <div class="btn-group" style="margin-top: 10px;">
-      <button class="btn-show" onclick="sendLiveScore(true)">📺 MOSTRA BUG</button>
-      <button class="btn-hide" onclick="sendLiveScore(false)">🚫 NASCONDI BUG</button>
+      <button class="btn-show" onclick="calcAndSend(true)">📺 MOSTRA BUG</button>
+      <button class="btn-hide" onclick="calcAndSend(false)">🚫 NASCONDI BUG</button>
     </div>
   </div>
 
@@ -120,36 +100,83 @@
     const liveChannel = new BroadcastChannel('sky_live_score_channel');
     let compactState = false;
 
+    // Genera automaticamente i campi per i 7 elementi
+    const container = document.getElementById('elementsContainer');
+    for (let i = 0; i < 7; i++) {
+      container.innerHTML += `
+        <div class="element-row">
+          <span>#${i+1}</span>
+          <input type="number" step="0.01" id="base_${i}" placeholder="Base (es. 4.00)" oninput="calcAndSend(true)">
+          <input type="number" step="0.01" id="goe_${i}" placeholder="GOE (es. 1.80)" oninput="calcAndSend(true)">
+          <span class="status-indicator" id="status_${i}">⬛</span>
+        </div>
+      `;
+    }
+
     function toggleCompact(compact) {
       compactState = compact;
-      sendLiveScore(true);
+      calcAndSend(true);
     }
 
-    function getValueSafely(id, defaultValue) {
-      const el = document.getElementById(id);
-      return el ? el.value : defaultValue;
-    }
+    function calcAndSend(visible) {
+      let totalScore = 0;
+      let elementStates = [];
+      let currentBase = 0;
+      let currentGoe = 0;
 
-    function sendLiveScore(visible) {
-      const elementStates = [];
       for (let i = 0; i < 7; i++) {
-        elementStates.push(getValueSafely(`el${i}`, ''));
+        const baseVal = document.getElementById(`base_${i}`).value;
+        const goeVal = document.getElementById(`goe_${i}`).value;
+
+        const base = parseFloat(baseVal);
+        const goe = parseFloat(goeVal);
+        const statusEl = document.getElementById(`status_${i}`);
+
+        if (!isNaN(base)) {
+          const validGoe = isNaN(goe) ? 0 : goe;
+          totalScore += (base + validGoe);
+
+          // Traccia ultimo elemento modificato
+          currentBase = base;
+          currentGoe = validGoe;
+
+          // Assegnazione Automatica Colore
+          if (isNaN(goe)) {
+            elementStates.push('yellow'); // In corso
+            statusEl.innerText = '🟨';
+          } else if (goe > 0) {
+            elementStates.push('green'); // GOE Positivo
+            statusEl.innerText = '🟩';
+          } else if (goe < 0) {
+            elementStates.push('red'); // GOE Negativo
+            statusEl.innerText = '🟥';
+          } else {
+            elementStates.push('yellow'); // GOE 0
+            statusEl.innerText = '🟨';
+          }
+        } else {
+          elementStates.push(''); // Non eseguito
+          statusEl.innerText = '⬛';
+        }
       }
+
+      document.getElementById('totalDisplay').innerText = totalScore.toFixed(2);
 
       liveChannel.postMessage({
         visible: visible,
         eventTitle: "WOMEN'S FREE SKATING",
         isFirstAthlete: document.getElementById('isFirstAthlete').checked,
         isCompact: compactState,
-        leaderCountry: getValueSafely('leaderCountry', 'CHN'),
-        leaderFlag: getValueSafely('leaderFlag', 'cn'),
-        leaderName: getValueSafely('leaderName', 'ZHANG'),
-        leaderScore: getValueSafely('leaderScore', '61.54'),
-        currentCountry: getValueSafely('currentCountry', 'ITA'),
-        currentFlag: getValueSafely('currentFlag', 'it'),
-        currentName: getValueSafely('currentName', 'GUTMANN'),
-        baseScore: getValueSafely('baseScore', 0),
-        goeScore: getValueSafely('goeScore', 0),
+        leaderCountry: document.getElementById('leaderCountry').value,
+        leaderFlag: document.getElementById('leaderFlag').value,
+        leaderName: document.getElementById('leaderName').value,
+        leaderScore: document.getElementById('leaderScore').value,
+        currentCountry: document.getElementById('currentCountry').value,
+        currentFlag: document.getElementById('currentFlag').value,
+        currentName: document.getElementById('currentName').value,
+        totalScore: totalScore,
+        currentBase: currentBase,
+        currentGoe: currentGoe,
         elementStates: elementStates
       });
     }
