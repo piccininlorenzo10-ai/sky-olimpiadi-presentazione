@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Sky Winter Games - Legenda Elementi</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      font-family: 'Montserrat', sans-serif;
+      background: transparent;
+    }
+
+    .explainer-container {
+      position: absolute;
+      bottom: 80px;
+      left: 80px;
+      width: 480px;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+      background: rgba(8, 24, 38, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(10px);
+    }
+
+    .explainer-container.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Intestazione */
+    .header-box {
+      background: linear-gradient(90deg, #092c42 0%, #0d4b73 100%);
+      padding: 14px 20px;
+      border-bottom: 2px solid #38b6ff;
+    }
+
+    .tag-title {
+      background: rgba(255, 255, 255, 0.9);
+      color: #092c42;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 3px 8px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: inline-block;
+      margin-bottom: 4px;
+    }
+
+    .main-title {
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .subtitle {
+      color: #38b6ff;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+
+    /* Lista Voci Legenda */
+    .legend-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 12px;
+      background: rgba(5, 16, 26, 0.85);
+    }
+
+    .legend-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #102d42;
+      padding: 10px 14px;
+      border-radius: 5px;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border-left: 3px solid rgba(255,255,255,0.1);
+      opacity: 0;
+      transform: translateX(-15px);
+      transition: all 0.4s ease;
+    }
+
+    .explainer-container.active .legend-item {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .legend-item:nth-child(1) { transition-delay: 0.1s; }
+    .legend-item:nth-child(2) { transition-delay: 0.2s; }
+    .legend-item:nth-child(3) { transition-delay: 0.3s; }
+    .legend-item:nth-child(4) { transition-delay: 0.4s; }
+
+    /* Quadrati Icona */
+    .color-box {
+      width: 20px;
+      height: 20px;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 900;
+      color: white;
+    }
+
+    .box-yellow { background: #ecc94b; color: #000; }
+    .box-green { background: #38a169; }
+    .box-red { background: #e53e3e; }
+    .box-invalid { background: #2b6cb0; border: 1px solid #63b3ed; }
+  </style>
+</head>
+<body>
+
+  <div class="explainer-container" id="explainer">
+    <div class="header-box">
+      <span class="tag-title">FIGURE SKATING</span>
+      <div class="main-title">LIVE TECHNICAL SCORE</div>
+      <div class="subtitle">LEGENDA VALUTAZIONE ELEMENTI</div>
+    </div>
+
+    <div class="legend-list">
+      <div class="legend-item">
+        <span>ELEMENT UNDER REVIEW</span>
+        <div class="color-box box-yellow"></div>
+      </div>
+      <div class="legend-item">
+        <span>POSITIVE GRADE OF EXECUTION</span>
+        <div class="color-box box-green"></div>
+      </div>
+      <div class="legend-item">
+        <span>NEGATIVE GRADE OF EXECUTION</span>
+        <div class="color-box box-red"></div>
+      </div>
+      <div class="legend-item">
+        <span>INVALID OR ADDITIONAL ELEMENT</span>
+        <div class="color-box box-invalid">✕</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const channel = new BroadcastChannel('sky_explainer_channel');
+
+    channel.onmessage = (event) => {
+      const explainer = document.getElementById('explainer');
+      if (event.data.visible) {
+        explainer.classList.add('active');
+      } else {
+        explainer.classList.remove('active');
+      }
+    };
+  </script>
+</body>
+</html>

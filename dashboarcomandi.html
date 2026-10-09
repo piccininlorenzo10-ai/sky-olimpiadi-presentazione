@@ -1,0 +1,18 @@
+<!-- Controllo Legenda Spiegazione Elementi -->
+<div class="card" style="margin-top:20px; background:#182232; border:1px solid #38b6ff;">
+  <h3 style="color:#38b6ff; margin-top:0;">ℹ️ Spiegazione Colori Elementi (Legenda TV)</h3>
+  <p style="font-size:12px; color:#a0aec0;">Mostra a schermo la guida sui colori del Technical Score (Giallo, Verde, Rosso, Invalido)[cite: 6].</p>
+
+  <div class="btn-group">
+    <button class="btn-show" onclick="toggleExplainer(true)">📺 MOSTRA LEGENDA IN ONDA</button>
+    <button class="btn-hide" onclick="toggleExplainer(false)">🚫 NASCONDI LEGENDA</button>
+  </div>
+</div>
+
+<script>
+  const explainerChannel = new BroadcastChannel('sky_explainer_channel');
+
+  function toggleExplainer(visible) {
+    explainerChannel.postMessage({ visible: visible });
+  }
+</script>
