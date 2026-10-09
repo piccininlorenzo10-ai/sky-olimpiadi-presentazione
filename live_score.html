@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Sky Live Score Bug Dynamic</title>
+  <title>Sky Live Score Bug ISU Style</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&display=swap');
 
@@ -34,7 +34,7 @@
       transform: translateY(0);
     }
 
-    /* Modalità Compatta (Spostamento del punteggio a sinistra) */
+    /* Modalità Compatta */
     .bug-container.compact {
       width: 180px;
     }
@@ -51,10 +51,9 @@
       padding: 6px 12px;
       text-transform: uppercase;
       letter-spacing: 1px;
-      white-space: nowrap;
     }
 
-    /* Leader Row (Nascosta per la prima concorrente) */
+    /* Leader Row */
     .leader-row {
       background: #14374e;
       color: white;
@@ -64,13 +63,13 @@
       font-size: 15px;
       font-weight: 700;
       border-bottom: 1px solid rgba(255,255,255,0.1);
-      transition: all 0.3s;
     }
 
     .leader-row.hidden {
       display: none;
     }
 
+    /* Current Athlete Row */
     .athlete-row {
       background: #1b4b6b;
       color: white;
@@ -83,9 +82,10 @@
 
     .country { margin-right: 8px; color: #a0aec0; font-size: 14px; }
     .flag { width: 24px; height: 16px; border-radius: 2px; margin-right: 10px; object-fit: cover; }
-    .name { text-transform: uppercase; flex: 1; letter-spacing: 0.5px; white-space: nowrap; transition: opacity 0.3s; }
+    .name { text-transform: uppercase; flex: 1; letter-spacing: 0.5px; white-space: nowrap; }
     .score { font-size: 18px; font-weight: 800; color: #ffffff; }
 
+    /* Technical Box */
     .tech-box {
       background: rgba(240, 244, 248, 0.95);
       color: #1a2b3c;
@@ -110,6 +110,27 @@
     }
 
     .tech-value { font-weight: 800; color: #0d2838; }
+
+    /* Quadrati degli Elementi Eseguiti */
+    .elements-bar {
+      display: flex;
+      gap: 4px;
+      padding: 6px 12px;
+      background: #0d2838;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .element-box {
+      flex: 1;
+      height: 12px;
+      border-radius: 2px;
+      background: #555555; /* Grigio base */
+      transition: background-color 0.3s ease;
+    }
+
+    .element-box.green { background: #38a169; } /* GOE Positivo */
+    .element-box.red { background: #e53e3e; }   /* GOE Negativo */
+    .element-box.yellow { background: #ecc94b; }/* In Revisione */
   </style>
 </head>
 <body>
@@ -117,7 +138,7 @@
   <div class="bug-container" id="bug">
     <div class="header-title" id="eventTitle">WOMEN'S FREE SKATING</div>
     
-    <!-- Leader (Mostrato solo dalla 2a atleta in poi) -->
+    <!-- Leader -->
     <div class="leader-row" id="leaderRow">
       <span class="country" id="leaderCountry">CHN</span>
       <img src="https://flagcdn.com/w80/cn.png" class="flag" id="leaderFlag">
@@ -125,25 +146,36 @@
       <span class="score" id="leaderScore">61.54</span>
     </div>
 
-    <!-- Atleta in Pista -->
+    <!-- Atleta Corrente -->
     <div class="athlete-row">
       <span class="country" id="currentCountry">ITA</span>
       <img src="https://flagcdn.com/w80/it.png" class="flag" id="currentFlag">
       <span class="name" id="currentName">GUTMANN</span>
-      <span class="score" id="currentScore">11.88</span>
+      <span class="score" id="currentScore">0.00</span>
     </div>
 
-    <!-- Dettaglio Elemento Tecnico -->
+    <!-- Dettagli Tecnico -->
     <div class="tech-box">
       <div class="tech-title">TECHNICAL SCORE</div>
       <div class="tech-row">
         <span>BASE</span>
-        <span class="tech-value" id="baseScore">10.70</span>
+        <span class="tech-value" id="baseScore">0.00</span>
       </div>
       <div class="tech-row">
         <span>EXECUTION (GOE)</span>
-        <span class="tech-value" id="goeScore">+1.18</span>
+        <span class="tech-value" id="goeScore">+0.00</span>
       </div>
+    </div>
+
+    <!-- Quadrati Elementi -->
+    <div class="elements-bar" id="elementsBar">
+      <div class="element-box" id="el0"></div>
+      <div class="element-box" id="el1"></div>
+      <div class="element-box" id="el2"></div>
+      <div class="element-box" id="el3"></div>
+      <div class="element-box" id="el4"></div>
+      <div class="element-box" id="el5"></div>
+      <div class="element-box" id="el6"></div>
     </div>
   </div>
 
@@ -158,29 +190,42 @@
       if (data.visible) {
         document.getElementById('eventTitle').innerText = data.eventTitle || "WOMEN'S FREE SKATING";
         
-        // Gestione Primo Atleta (Nasconde la riga del Leader)
+        // Primo Atleta o Leader
         if (data.isFirstAthlete) {
           leaderRow.classList.add('hidden');
         } else {
           leaderRow.classList.remove('hidden');
           document.getElementById('leaderCountry').innerText = data.leaderCountry || '';
-          document.getElementById('leaderFlag').src = `https://flagcdn.com/w80/${data.leaderFlag.toLowerCase()}.png`;
+          document.getElementById('leaderFlag').src = `https://flagcdn.com/w80/${(data.leaderFlag || 'cn').toLowerCase()}.png`;
           document.getElementById('leaderName').innerText = data.leaderName || '';
-          document.getElementById('leaderScore').innerText = data.leaderScore || '';
+          document.getElementById('leaderScore').innerText = data.leaderScore || '0.00';
         }
 
+        // Atleta in pista
         document.getElementById('currentCountry').innerText = data.currentCountry || '';
-        document.getElementById('currentFlag').src = `https://flagcdn.com/w80/${data.currentFlag.toLowerCase()}.png`;
+        document.getElementById('currentFlag').src = `https://flagcdn.com/w80/${(data.currentFlag || 'it').toLowerCase()}.png`;
         document.getElementById('currentName').innerText = data.currentName || '';
 
-        // Calcolo Punteggio
+        // Calcolo Punteggio Totale (Base + GOE)
         const base = parseFloat(data.baseScore || 0);
         const goe = parseFloat(data.goeScore || 0);
+        const total = (base + goe).toFixed(2);
+
         document.getElementById('baseScore').innerText = base.toFixed(2);
         document.getElementById('goeScore').innerText = (goe >= 0 ? '+' : '') + goe.toFixed(2);
-        document.getElementById('currentScore').innerText = (base + goe).toFixed(2);
+        document.getElementById('currentScore').innerText = total;
 
-        // Modalità Compatta (sposta punteggio a sinistra nascondendo il nome)
+        // Aggiornamento Colori Quadrati Elementi
+        if (data.elementStates && Array.isArray(data.elementStates)) {
+          data.elementStates.forEach((state, index) => {
+            const box = document.getElementById(`el${index}`);
+            if (box) {
+              box.className = 'element-box ' + state; // grigio, green, red, yellow
+            }
+          });
+        }
+
+        // Modalità Compatta
         if (data.isCompact) {
           bug.classList.add('compact');
         } else {
