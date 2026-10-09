@@ -1,105 +1,150 @@
-<!-- Sezione Classifica Dinamica Avanzata -->
-<div class="card" style="margin-top:20px; background:#182232; border:1px solid #2d3748;">
-  <h2 style="color:#38b6ff; font-size:18px; margin-top:0;">📊 Regia Classifica Generale</h2>
-  
-  <div class="form-group">
-    <label>Titolo Categoria / Gara:</label>
-    <input type="text" id="boardTitle" value="WOMEN'S SINGLE SKATING">
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Regia Sky - Classifica Pattinaggio</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0f172a;
+      color: white;
+      padding: 20px;
+      max-width: 650px;
+      margin: 0 auto;
+    }
+    h1 { color: #38b6ff; text-align: center; font-size: 22px; margin-bottom: 20px; }
+    .card { background: #1e293b; padding: 18px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #334155; }
+    .form-group { margin-bottom: 12px; }
+    label { display: block; margin-bottom: 6px; color: #94a3b8; font-size: 13px; font-weight: bold; }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #475569;
+      background: #0f172a;
+      color: white;
+      box-sizing: border-box;
+      font-size: 13px;
+    }
+    .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+    button { flex: 1; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    .btn-add { background: #38b6ff; color: #0f172a; }
+    .btn-add:hover { background: #0284c7; color: white; }
+    .btn-show { background: #22c55e; color: white; }
+    .btn-hide { background: #ef4444; color: white; }
+    .skater-row {
+      display: grid;
+      grid-template-columns: 55px 45px 1fr 70px 70px 75px 35px;
+      gap: 6px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎛️ Regia Classifica Pattinaggio su Ghiaccio</h1>
+
+  <div class="card">
+    <div class="form-group">
+      <label>Titolo Categoria / Competizione:</label>
+      <input type="text" id="boardTitle" value="PATTINAGGIO DI FIGURA - CLASSIFICA">
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin: 15px 0 10px 0;">
+      <label style="color:#e2e8f0; font-size:14px;">Lista Pattinatori:</label>
+      <button class="btn-add" onclick="addSkater()" style="padding:6px 12px; width:auto;">➕ Aggiungi Pattinatore</button>
+    </div>
+
+    <!-- Header Colonne Tabelle -->
+    <div style="display:grid; grid-template-columns: 55px 45px 1fr 70px 70px 75px 35px; gap:6px; font-size:11px; color:#94a3b8; font-weight:bold; margin-bottom:6px; text-align:center;">
+      <span>NAZ</span>
+      <span>FLAG</span>
+      <span style="text-align:left;">NOME PATTINATORE</span>
+      <span>SHORT</span>
+      <span>FREE</span>
+      <span>TOTALE</span>
+      <span></span>
+    </div>
+
+    <div id="skatersContainer"></div>
+
+    <div class="btn-group">
+      <button class="btn-show" onclick="sendLeaderboard(true)">📺 MOSTRA CLASSIFICA IN ONDA</button>
+      <button class="btn-hide" onclick="sendLeaderboard(false)">🚫 NASCONDI CLASSIFICA</button>
+    </div>
   </div>
 
-  <div style="display:flex; justify-content:space-between; align-items:center; margin: 15px 0 10px 0;">
-    <label style="color:#e2e8f0;">Lista Pattinatori in Classifica:</label>
-    <button onclick="addSkater()" style="background:#38b6ff; color:#000; padding:6px 12px; font-weight:bold; border:none; border-radius:4px; cursor:pointer;">
-      ➕ Aggiungi Pattinatore
-    </button>
-  </div>
+  <script>
+    const boardChannel = new BroadcastChannel('sky_leaderboard_channel');
 
-  <!-- Intestazione Tabella Regia -->
-  <div style="display:grid; grid-template-columns: 55px 45px 1fr 65px 65px 70px 30px; gap:6px; font-size:11px; color:#7f9cb5; font-weight:bold; margin-bottom:5px;">
-    <span>NAZ</span>
-    <span>FLAG</span>
-    <span>NOME PATTINATORE</span>
-    <span>SHORT</span>
-    <span>FREE</span>
-    <span>TOTALE</span>
-    <span></span>
-  </div>
+    let skatersList = [
+      { country: 'USA', flag: 'us', name: 'AMBER GLENN', shortScore: '67.39', freeScore: '147.52' },
+      { country: 'KOR', flag: 'kr', name: 'SHIN JIA', shortScore: '65.66', freeScore: '141.02' },
+      { country: 'ITA', flag: 'it', name: 'LARA NAKI GUTMANN', shortScore: '61.56', freeScore: '134.19' }
+    ];
 
-  <div id="skatersContainer"></div>
+    function renderSkaterRows() {
+      const container = document.getElementById('skatersContainer');
+      container.innerHTML = '';
 
-  <div class="btn-group" style="margin-top:15px;">
-    <button class="btn-show" onclick="sendLeaderboard(true)">📺 MOSTRA CLASSIFICA IN ONDA</button>
-    <button class="btn-hide" onclick="sendLeaderboard(false)">🚫 NASCONDI CLASSIFICA</button>
-  </div>
-</div>
+      skatersList.forEach((skater, index) => {
+        const short = parseFloat(skater.shortScore) || 0;
+        const free = parseFloat(skater.freeScore) || 0;
+        const total = (short + free).toFixed(2);
 
-<script>
-  const boardChannel = new BroadcastChannel('sky_leaderboard_channel');
+        container.innerHTML += `
+          <div class="skater-row">
+            <input type="text" value="${skater.country}" oninput="updateSkater(${index}, 'country', this.value)" style="text-align:center;">
+            <input type="text" value="${skater.flag}" oninput="updateSkater(${index}, 'flag', this.value)" style="text-align:center;">
+            <input type="text" value="${skater.name}" oninput="updateSkater(${index}, 'name', this.value)">
+            <input type="number" step="0.01" value="${skater.shortScore}" oninput="updateSkater(${index}, 'shortScore', this.value)" style="text-align:right;">
+            <input type="number" step="0.01" value="${skater.freeScore}" oninput="updateSkater(${index}, 'freeScore', this.value)" style="text-align:right;">
+            <input type="text" value="${total}" readonly style="background:#334155; color:#38b6ff; font-weight:bold; text-align:center;">
+            <button onclick="removeSkater(${index})" style="background:#ef4444; color:white; border:none; border-radius:4px; padding:6px; cursor:pointer; font-weight:bold;">✕</button>
+          </div>
+        `;
+      });
+    }
 
-  let skatersList = [
-    { country: 'USA', flag: 'us', name: 'AMBER GLENN', shortScore: '67.39', freeScore: '147.52' },
-    { country: 'KOR', flag: 'kr', name: 'SHIN JIA', shortScore: '65.66', freeScore: '141.02' },
-    { country: 'ITA', flag: 'it', name: 'LARA NAKI GUTMANN', shortScore: '61.56', freeScore: '134.19' }
-  ];
+    function updateSkater(index, field, value) {
+      skatersList[index][field] = value;
+      renderSkaterRows();
+    }
 
-  function renderSkaterRows() {
-    const container = document.getElementById('skatersContainer');
-    container.innerHTML = '';
+    function addSkater() {
+      skatersList.push({ country: 'ITA', flag: 'it', name: 'NUOVO ATLETA', shortScore: '0.00', freeScore: '0.00' });
+      renderSkaterRows();
+    }
 
-    skatersList.forEach((skater, index) => {
-      const short = parseFloat(skater.shortScore) || 0;
-      const free = parseFloat(skater.freeScore) || 0;
-      const total = (short + free).toFixed(2);
+    function removeSkater(index) {
+      skatersList.splice(index, 1);
+      renderSkaterRows();
+    }
 
-      container.innerHTML += `
-        <div style="display:grid; grid-template-columns: 55px 45px 1fr 65px 65px 70px 30px; gap:6px; margin-bottom:6px; align-items:center;">
-          <input type="text" value="${skater.country}" oninput="updateSkater(${index}, 'country', this.value)" style="text-align:center;">
-          <input type="text" value="${skater.flag}" oninput="updateSkater(${index}, 'flag', this.value)" style="text-align:center;">
-          <input type="text" value="${skater.name}" oninput="updateSkater(${index}, 'name', this.value)">
-          <input type="number" step="0.01" value="${skater.shortScore}" oninput="updateSkater(${index}, 'shortScore', this.value)">
-          <input type="number" step="0.01" value="${skater.freeScore}" oninput="updateSkater(${index}, 'freeScore', this.value)">
-          <input type="text" value="${total}" readonly style="background:#2d3748; color:#38b6ff; font-weight:bold; text-align:center;">
-          <button onclick="removeSkater(${index})" style="background:#e53e3e; color:white; border:none; border-radius:4px; padding:6px; cursor:pointer; font-weight:bold;">✕</button>
-        </div>
-      `;
-    });
-  }
+    function sendLeaderboard(visible) {
+      const preparedSkaters = skatersList.map(s => {
+        const short = parseFloat(s.shortScore) || 0;
+        const free = parseFloat(s.freeScore) || 0;
+        return {
+          country: s.country,
+          flag: s.flag,
+          name: s.name,
+          shortScore: short > 0 ? short.toFixed(2) : '-',
+          freeScore: free > 0 ? free.toFixed(2) : '-',
+          totalScore: (short + free).toFixed(2)
+        };
+      });
 
-  function updateSkater(index, field, value) {
-    skatersList[index][field] = value;
+      boardChannel.postMessage({
+        visible: visible,
+        title: document.getElementById('boardTitle').value,
+        skaters: preparedSkaters
+      });
+    }
+
+    // Inizializzazione della tabella
     renderSkaterRows();
-  }
-
-  function addSkater() {
-    skatersList.push({ country: 'ITA', flag: 'it', name: 'NUOVO ATLETA', shortScore: '0.00', freeScore: '0.00' });
-    renderSkaterRows();
-  }
-
-  function removeSkater(index) {
-    skatersList.splice(index, 1);
-    renderSkaterRows();
-  }
-
-  function sendLeaderboard(visible) {
-    const preparedSkaters = skatersList.map(s => {
-      const short = parseFloat(s.shortScore) || 0;
-      const free = parseFloat(s.freeScore) || 0;
-      return {
-        country: s.country,
-        flag: s.flag,
-        name: s.name,
-        shortScore: short > 0 ? short.toFixed(2) : '-',
-        freeScore: free > 0 ? free.toFixed(2) : '-',
-        totalScore: (short + free).toFixed(2)
-      };
-    });
-
-    boardChannel.postMessage({
-      visible: visible,
-      title: document.getElementById('boardTitle').value,
-      skaters: preparedSkaters
-    });
-  }
-
-  renderSkaterRows();
-</script>
+  </script>
+</body>
+</html>
