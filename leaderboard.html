@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Sky Winter Games - Classifica Pattinaggio</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap');
+
+    body {
+      margin: 0;
+      padding: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      font-family: 'Montserrat', sans-serif;
+      background: transparent;
+    }
+
+    .leaderboard-box {
+      position: absolute;
+      bottom: 80px;
+      left: 100px;
+      width: 1250px;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .leaderboard-box.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Header Banner con Gradiente */
+    .header-banner {
+      background: linear-gradient(135deg, #092c42 0%, #0d4b73 100%);
+      color: white;
+      padding: 15px 25px;
+      position: relative;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .discipline-tag {
+      background: rgba(255, 255, 255, 0.9);
+      color: #092c42;
+      padding: 3px 12px;
+      font-size: 13px;
+      font-weight: 800;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .competition-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #38b6ff;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .main-title {
+      font-size: 28px;
+      font-weight: 900;
+      margin-top: 5px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    /* Sub-header Colonne */
+    .col-header {
+      display: flex;
+      background: #061c2b;
+      color: #38b6ff;
+      padding: 8px 20px;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .col-rank { width: 50px; }
+    .col-athlete { flex: 1; padding-left: 10px; }
+    .col-short { width: 200px; text-align: right; }
+    .col-free { width: 200px; text-align: right; }
+    .col-total { width: 160px; text-align: right; color: white; }
+
+    /* Righe Classifica */
+    .rows-container {
+      background: rgba(10, 35, 53, 0.96);
+    }
+
+    .row-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      color: white;
+      opacity: 0;
+      transform: translateX(-30px);
+      transition: all 0.5s ease;
+    }
+
+    /* Animazione a Cascata delle Righe */
+    .leaderboard-box.active .row-item {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .row-item:nth-child(1) { transition-delay: 0.1s; }
+    .row-item:nth-child(2) { transition-delay: 0.2s; }
+    .row-item:nth-child(3) { transition-delay: 0.3s; }
+    .row-item:nth-child(4) { transition-delay: 0.4s; }
+    .row-item:nth-child(5) { transition-delay: 0.5s; }
+    .row-item:nth-child(6) { transition-delay: 0.6s; }
+
+    /* Badge Posizione Oro */
+    .rank-badge {
+      width: 32px;
+      height: 32px;
+      background: #ecc94b;
+      color: #0d1117;
+      font-weight: 900;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+    }
+
+    .country-code { font-size: 16px; font-weight: 700; color: #a0aec0; margin: 0 12px; width: 45px; }
+    .flag-img { width: 30px; height: 20px; border-radius: 2px; object-fit: cover; margin-right: 15px; }
+    .athlete-name { font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; flex: 1; }
+
+    /* Badge Ordine Parziale */
+    .order-badge {
+      display: inline-block;
+      background: #ecc94b;
+      color: #0d1117;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-right: 8px;
+    }
+
+    .score-val { font-size: 20px; font-weight: 700; }
+    .total-val { font-size: 22px; font-weight: 900; color: #38b6ff; }
+  </style>
+</head>
+<body>
+
+  <div class="leaderboard-box" id="board">
+    <div class="header-banner">
+      <div class="header-top">
+        <span class="discipline-tag">FIGURE SKATING</span>
+        <span class="competition-title">SKY WINTER GAMES ™</span>
+      </div>
+      <div class="main-title" id="titleText">WOMEN'S SINGLE SKATING</div>
+    </div>
+
+    <div class="col-header">
+      <div class="col-rank">#</div>
+      <div class="col-athlete">ATHLETE</div>
+      <div class="col-short">SHORT PROGRAM</div>
+      <div class="col-free">FREE SKATING</div>
+      <div class="col-total">TOTAL</div>
+    </div>
+
+    <div class="rows-container" id="rowsList">
+      <!-- Le righe verranno inserite dinamicamente dal Javascript -->
+    </div>
+  </div>
+
+  <script>
+    const channel = new BroadcastChannel('sky_leaderboard_channel');
+
+    channel.onmessage = (event) => {
+      const data = event.data;
+      const board = document.getElementById('board');
+      const rowsList = document.getElementById('rowsList');
+
+      if (data.visible) {
+        document.getElementById('titleText').innerText = data.title || "WOMEN'S SINGLE SKATING";
+        
+        // Costruzione dinamica righe della classifica
+        rowsList.innerHTML = '';
+        if (data.skaters && Array.isArray(data.skaters)) {
+          data.skaters.forEach((skater, index) => {
+            rowsList.innerHTML += `
+              <div class="row-item">
+                <div class="col-rank"><div class="rank-badge">${index + 1}</div></div>
+                <div class="col-athlete" style="display:flex; align-items:center;">
+                  <span class="country-code">${skater.country}</span>
+                  <img src="https://flagcdn.com/w80/${skater.flag.toLowerCase()}.png" class="flag-img">
+                  <span class="athlete-name">${skater.name}</span>
+                </div>
+                <div class="col-short">
+                  ${skater.shortRank ? `<span class="order-badge">\${skater.shortRank}</span>` : ''}
+                  <span class="score-val">${skater.shortScore}</span>
+                </div>
+                <div class="col-free">
+                  ${skater.freeRank ? `<span class="order-badge">\${skater.freeRank}</span>` : ''}
+                  <span class="score-val">${skater.freeScore}</span>
+                </div>
+                <div class="col-total"><span class="total-val">${skater.totalScore}</span></div>
+              </div>
+            `;
+          });
+        }
+
+        board.classList.add('active');
+      } else {
+        board.classList.remove('active');
+      }
+    };
+  </script>
+</body>
+</html>

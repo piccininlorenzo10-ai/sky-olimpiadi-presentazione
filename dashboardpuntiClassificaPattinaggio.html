@@ -1,0 +1,74 @@
+<!-- Sezione Pannello Classifica -->
+<div class="card" style="margin-top:20px;">
+  <h3 style="color:#38b6ff; margin-top:0;">📊 Gestione Classifica Generale (Leaderboard)</h3>
+  
+  <div class="form-group">
+    <label>Titolo Categoria:</label>
+    <input type="text" id="boardTitle" value="WOMEN'S SINGLE SKATING">
+  </div>
+
+  <button onclick="addSkaterRow()" style="background:#2b6cb0; color:white; padding:8px; border:none; border-radius:5px; margin-bottom:10px; cursor:pointer;">
+    ➕ Aggiungi Atleta in Classifica
+  </button>
+
+  <div id="skatersInputs">
+    <!-- Primi 3 Atleti preimpostati dall'immagine -->
+  </div>
+
+  <div class="btn-group" style="margin-top:15px;">
+    <button class="btn-show" onclick="sendLeaderboard(true)">📺 MOSTRA CLASSIFICA IN ONDA</button>
+    <button class="btn-hide" onclick="sendLeaderboard(false)">🚫 NASCONDI CLASSIFICA</button>
+  </div>
+</div>
+
+<script>
+  const boardChannel = new BroadcastChannel('sky_leaderboard_channel');
+
+  // Dati di default basati sulla tua immagine
+  const defaultSkaters = [
+    { country: 'USA', flag: 'us', name: 'AMBER GLENN', shortRank: '13', shortScore: '67.39', freeRank: '1', freeScore: '147.52', total: '214.91' },
+    { country: 'KOR', flag: 'kr', name: 'SHIN JIA', shortRank: '14', shortScore: '65.66', freeRank: '2', freeScore: '141.02', total: '206.68' },
+    { country: 'ITA', flag: 'it', name: 'LARA NAKI GUTMANN', shortRank: '18', shortScore: '61.56', freeRank: '3', freeScore: '134.19', total: '195.75' }
+  ];
+
+  function renderSkaterInputs() {
+    const container = document.getElementById('skatersInputs');
+    container.innerHTML = '';
+    defaultSkaters.forEach((s, i) => {
+      container.innerHTML += `
+        <div style="background:#0d1117; padding:8px; border-radius:5px; margin-bottom:8px; display:grid; grid-template-columns: 50px 40px 1fr 60px 60px 70px; gap:5px;">
+          <input type="text" value="${s.country}" id="c_${i}" placeholder="Naz">
+          <input type="text" value="${s.flag}" id="f_${i}" placeholder="Flag">
+          <input type="text" value="${s.name}" id="n_${i}" placeholder="Nome">
+          <input type="text" value="${s.shortScore}" id="ss_${i}" placeholder="Short">
+          <input type="text" value="${s.freeScore}" id="fs_${i}" placeholder="Free">
+          <input type="text" value="${s.total}" id="t_${i}" placeholder="Tot">
+        </div>
+      `;
+    });
+  }
+
+  renderSkaterInputs();
+
+  function sendLeaderboard(visible) {
+    const skaters = [];
+    for (let i = 0; i < defaultSkaters.length; i++) {
+      skaters.push({
+        country: document.getElementById(`c_${i}`).value,
+        flag: document.getElementById(`f_${i}`).value,
+        name: document.getElementById(`n_${i}`).value,
+        shortRank: defaultSkaters[i].shortRank,
+        shortScore: document.getElementById(`ss_${i}`).value,
+        freeRank: defaultSkaters[i].freeRank,
+        freeScore: document.getElementById(`fs_${i}`).value,
+        totalScore: document.getElementById(`t_${i}`).value
+      });
+    }
+
+    boardChannel.postMessage({
+      visible: visible,
+      title: document.getElementById('boardTitle').value,
+      skaters: skaters
+    });
+  }
+</script>
