@@ -9,7 +9,7 @@
       background: #0f172a;
       color: white;
       padding: 20px;
-      max-width: 650px;
+      max-width: 680px;
       margin: 0 auto;
     }
     h1 { color: #38b6ff; text-align: center; font-size: 22px; margin-bottom: 20px; }
@@ -48,7 +48,7 @@
   <div class="card">
     <div class="form-group">
       <label>Titolo Categoria / Competizione:</label>
-      <input type="text" id="boardTitle" value="PATTINAGGIO DI FIGURA - CLASSIFICA">
+      <input type="text" id="boardTitle" value="WOMEN'S SINGLE SKATING">
     </div>
 
     <div style="display:flex; justify-content:space-between; align-items:center; margin: 15px 0 10px 0;">
@@ -56,7 +56,6 @@
       <button class="btn-add" onclick="addSkater()" style="padding:6px 12px; width:auto;">➕ Aggiungi Pattinatore</button>
     </div>
 
-    <!-- Header Colonne Tabelle -->
     <div style="display:grid; grid-template-columns: 55px 45px 1fr 70px 70px 75px 35px; gap:6px; font-size:11px; color:#94a3b8; font-weight:bold; margin-bottom:6px; text-align:center;">
       <span>NAZ</span>
       <span>FLAG</span>
@@ -143,7 +142,6 @@
       });
     }
 
-    // Inizializzazione della tabella
     renderSkaterRows();
   </script>
 </body>
