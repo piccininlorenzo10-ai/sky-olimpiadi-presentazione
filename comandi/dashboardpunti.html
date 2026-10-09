@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Regia Sky - Dashboard Punti Live</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #121824;
+      color: white;
+      padding: 20px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    h1 { color: #38b6ff; text-align: center; font-size: 20px; }
+    .card { background: #1a202c; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+    .form-group { margin-bottom: 10px; }
+    label { display: block; margin-bottom: 4px; color: #a0aec0; font-size: 13px; font-weight: bold; }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #2d3748;
+      background: #0d1117;
+      color: white;
+      box-sizing: border-box;
+    }
+    .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+    button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-show { background: #38b6ff; color: #000; }
+    .btn-hide { background: #e53e3e; color: white; }
+    .btn-yellow { background: #ecc94b; color: #000; }
+    .btn-green { background: #48bb78; color: white; }
+  </style>
+</head>
+<body>
+
+  <h1>🎛️ Regia Punti Live (Bug TV)</h1>
+
+  <!-- Info Atleta In Pista -->
+  <div class="card">
+    <h3 style="color: #38b6ff; margin-top: 0;">👤 Atleta Corrente</h3>
+    <div class="form-group">
+      <label>Codice Nazione (es. ITA):</label>
+      <input type="text" id="countryCode" value="ITA">
+    </div>
+    <div class="form-group">
+      <label>Codice Bandiera ISO (es. it):</label>
+      <input type="text" id="countryFlag" value="it">
+    </div>
+    <div class="form-group">
+      <label>Cognome Atleta:</label>
+      <input type="text" id="athleteName" value="GUTMANN">
+    </div>
+  </div>
+
+  <!-- Punteggio Elemento Live -->
+  <div class="card">
+    <h3 style="color: #38b6ff; margin-top: 0;">⛸️ Elemento Tecnico</h3>
+    <div class="form-group">
+      <label>Valore Base (Base Score):</label>
+      <input type="number" step="0.01" id="baseScore" value="10.70">
+    </div>
+    <div class="form-group">
+      <label>GOE (-5 a +5):</label>
+      <input type="number" step="0.01" id="goeScore" value="1.18">
+    </div>
+
+    <div class="form-group" style="margin-top: 15px;">
+      <label><input type="checkbox" id="isFirstAthlete" checked> È la prima atleta? (Nasconde la riga del Leader)</label>
+    </div>
+  </div>
+
+  <!-- Controlli Posizione e Visibilità -->
+  <div class="card">
+    <h3 style="color: #38b6ff; margin-top: 0;">🎬 Controlli Animazione</h3>
+    
+    <div class="btn-group">
+      <button class="btn-yellow" onclick="toggleCompact(true)">⬅️ COMPATTA (Punti a sx)</button>
+      <button class="btn-green" onclick="toggleCompact(false)">➡️ ESPANDI (Punti a dx)</button>
+    </div>
+
+    <div class="btn-group" style="margin-top: 10px;">
+      <button class="btn-show" onclick="sendLiveScore(true)">📺 MOSTRA BUG</button>
+      <button class="btn-hide" onclick="sendLiveScore(false)">🚫 NASCONDI BUG</button>
+    </div>
+  </div>
+
+  <script>
+    const liveChannel = new BroadcastChannel('sky_live_score_channel');
+    let compactState = false;
+
+    function toggleCompact(compact) {
+      compactState = compact;
+      sendLiveScore(true);
+    }
+
+    function getValueSafely(id, defaultValue) {
+      const el = document.getElementById(id);
+      return el ? el.value : defaultValue;
+    }
+
+    function sendLiveScore(visible) {
+      const isFirstEl = document.getElementById('isFirstAthlete');
+
+      liveChannel.postMessage({
+        visible: visible,
+        eventTitle: "WOMEN'S FREE SKATING",
+        isFirstAthlete: isFirstEl ? isFirstEl.checked : false,
+        isCompact: compactState,
+        leaderCountry: "CHN",
+        leaderFlag: "cn",
+        leaderName: "ZHANG",
+        leaderScore: "61.54",
+        currentCountry: getValueSafely('countryCode', 'ITA'),
+        currentFlag: getValueSafely('countryFlag', 'it'),
+        currentName: getValueSafely('athleteName', 'GUTMANN'),
+        baseScore: getValueSafely('baseScore', 0),
+        goeScore: getValueSafely('goeScore', 0)
+      });
+    }
+  </script>
+</body>
+</html>
