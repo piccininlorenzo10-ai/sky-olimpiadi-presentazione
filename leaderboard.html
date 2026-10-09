@@ -2,13 +2,13 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Sky Winter Games - Classifica Pattinaggio</title>
+  <title>Sky Winter Games - Classifica Premium</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      margin: 0;
-      padding: 0;
       width: 1920px;
       height: 1080px;
       overflow: hidden;
@@ -16,168 +16,191 @@
       background: transparent;
     }
 
-    .leaderboard-box {
+    .leaderboard-wrapper {
       position: absolute;
-      bottom: 80px;
-      left: 100px;
-      width: 1250px;
+      bottom: 70px;
+      left: 90px;
+      width: 1280px;
       opacity: 0;
-      transform: translateY(40px);
-      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-      border-radius: 10px;
+      transform: translateY(30px);
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      border-radius: 12px;
       overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      background: rgba(10, 25, 40, 0.92);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .leaderboard-box.active {
+    .leaderboard-wrapper.active {
       opacity: 1;
       transform: translateY(0);
     }
 
-    /* Header Banner con Gradiente */
-    .header-banner {
-      background: linear-gradient(135deg, #092c42 0%, #0d4b73 100%);
-      color: white;
-      padding: 15px 25px;
-      position: relative;
-    }
-
-    .header-top {
+    /* Header Modello Premium Sky */
+    .header {
+      background: linear-gradient(90deg, #091e2e 0%, #004b87 100%);
+      padding: 16px 28px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border-bottom: 2px solid #38b6ff;
     }
 
-    .discipline-tag {
-      background: rgba(255, 255, 255, 0.9);
-      color: #092c42;
-      padding: 3px 12px;
-      font-size: 13px;
-      font-weight: 800;
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .tag-discipline {
+      background: #38b6ff;
+      color: #08131d;
+      font-size: 12px;
+      font-weight: 900;
+      padding: 4px 10px;
       border-radius: 4px;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
 
-    .competition-title {
-      font-size: 14px;
+    .title-main {
+      color: #ffffff;
+      font-size: 22px;
       font-weight: 800;
-      color: #38b6ff;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .header-right {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
+
+    /* Intestazione Colonne */
+    .col-titles {
+      display: flex;
+      align-items: center;
+      padding: 10px 28px;
+      background: rgba(4, 14, 23, 0.8);
+      color: #7f9cb5;
+      font-size: 11px;
+      font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 1.5px;
     }
 
-    .main-title {
-      font-size: 28px;
-      font-weight: 900;
-      margin-top: 5px;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
+    .col-rank { width: 50px; text-align: center; }
+    .col-athlete { flex: 1; padding-left: 20px; }
+    .col-short { width: 180px; text-align: right; }
+    .col-free { width: 180px; text-align: right; }
+    .col-total { width: 160px; text-align: right; color: #38b6ff; }
 
-    /* Sub-header Colonne */
-    .col-header {
-      display: flex;
-      background: #061c2b;
-      color: #38b6ff;
-      padding: 8px 20px;
-      font-size: 13px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .col-rank { width: 50px; }
-    .col-athlete { flex: 1; padding-left: 10px; }
-    .col-short { width: 200px; text-align: right; }
-    .col-free { width: 200px; text-align: right; }
-    .col-total { width: 160px; text-align: right; color: white; }
-
-    /* Righe Classifica */
+    /* Righe Atleti */
     .rows-container {
-      background: rgba(10, 35, 53, 0.96);
+      display: flex;
+      flex-direction: column;
     }
 
     .row-item {
       display: flex;
       align-items: center;
-      padding: 10px 20px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      color: white;
+      padding: 10px 28px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: #ffffff;
       opacity: 0;
-      transform: translateX(-30px);
-      transition: all 0.5s ease;
+      transform: translateX(-20px);
+      transition: all 0.4s ease;
     }
 
-    /* Animazione a Cascata delle Righe */
-    .leaderboard-box.active .row-item {
+    .leaderboard-wrapper.active .row-item {
       opacity: 1;
       transform: translateX(0);
     }
 
-    .row-item:nth-child(1) { transition-delay: 0.1s; }
-    .row-item:nth-child(2) { transition-delay: 0.2s; }
-    .row-item:nth-child(3) { transition-delay: 0.3s; }
-    .row-item:nth-child(4) { transition-delay: 0.4s; }
-    .row-item:nth-child(5) { transition-delay: 0.5s; }
-    .row-item:nth-child(6) { transition-delay: 0.6s; }
+    /* Alternanza Sfondo */
+    .row-item:nth-child(even) { background: rgba(255, 255, 255, 0.02); }
 
-    /* Badge Posizione Oro */
-    .rank-badge {
+    /* Badge Posizione Pulito */
+    .rank-num {
       width: 32px;
       height: 32px;
-      background: #ecc94b;
-      color: #0d1117;
-      font-weight: 900;
-      font-size: 18px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 800;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 4px;
+      border-radius: 6px;
     }
 
-    .country-code { font-size: 16px; font-weight: 700; color: #a0aec0; margin: 0 12px; width: 45px; }
-    .flag-img { width: 30px; height: 20px; border-radius: 2px; object-fit: cover; margin-right: 15px; }
-    .athlete-name { font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; flex: 1; }
+    .row-item:nth-child(1) .rank-num { background: #ecc94b; color: #08131d; }
+    .row-item:nth-child(2) .rank-num { background: #cbd5e0; color: #08131d; }
+    .row-item:nth-child(3) .rank-num { background: #ed8936; color: #08131d; }
 
-    /* Badge Ordine Parziale */
-    .order-badge {
-      display: inline-block;
-      background: #ecc94b;
-      color: #0d1117;
-      font-size: 12px;
+    .country-code {
+      font-size: 14px;
+      font-weight: 700;
+      color: #7f9cb5;
+      margin-left: 20px;
+      width: 40px;
+    }
+
+    .flag-icon {
+      width: 28px;
+      height: 18px;
+      border-radius: 3px;
+      object-fit: cover;
+      margin-right: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .athlete-name {
+      font-size: 18px;
       font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex: 1;
+    }
+
+    .sub-rank {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 800;
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
       padding: 2px 6px;
       border-radius: 3px;
       margin-right: 8px;
     }
 
-    .score-val { font-size: 20px; font-weight: 700; }
-    .total-val { font-size: 22px; font-weight: 900; color: #38b6ff; }
+    .score-num { font-size: 18px; font-weight: 700; color: #e2e8f0; }
+    .total-num { font-size: 20px; font-weight: 900; color: #38b6ff; }
   </style>
 </head>
 <body>
 
-  <div class="leaderboard-box" id="board">
-    <div class="header-banner">
-      <div class="header-top">
-        <span class="discipline-tag">FIGURE SKATING</span>
-        <span class="competition-title">SKY WINTER GAMES ™</span>
+  <div class="leaderboard-wrapper" id="board">
+    <div class="header">
+      <div class="header-left">
+        <span class="tag-discipline">FIGURE SKATING</span>
+        <span class="title-main" id="titleText">WOMEN'S SINGLE SKATING</span>
       </div>
-      <div class="main-title" id="titleText">WOMEN'S SINGLE SKATING</div>
+      <div class="header-right">SKY WINTER GAMES</div>
     </div>
 
-    <div class="col-header">
-      <div class="col-rank">#</div>
-      <div class="col-athlete">ATHLETE</div>
+    <div class="col-titles">
+      <div class="col-rank">POS</div>
+      <div class="col-athlete">PATTINATORE / NAZIONE</div>
       <div class="col-short">SHORT PROGRAM</div>
       <div class="col-free">FREE SKATING</div>
-      <div class="col-total">TOTAL</div>
+      <div class="col-total">TOTALE</div>
     </div>
 
-    <div class="rows-container" id="rowsList">
-      <!-- Le righe verranno inserite dinamicamente dal Javascript -->
-    </div>
+    <div class="rows-container" id="rowsList"></div>
   </div>
 
   <script>
@@ -190,30 +213,32 @@
 
       if (data.visible) {
         document.getElementById('titleText').innerText = data.title || "WOMEN'S SINGLE SKATING";
-        
-        // Costruzione dinamica righe della classifica
         rowsList.innerHTML = '';
+
         if (data.skaters && Array.isArray(data.skaters)) {
           data.skaters.forEach((skater, index) => {
-            rowsList.innerHTML += `
-              <div class="row-item">
-                <div class="col-rank"><div class="rank-badge">${index + 1}</div></div>
-                <div class="col-athlete" style="display:flex; align-items:center;">
-                  <span class="country-code">${skater.country}</span>
-                  <img src="https://flagcdn.com/w80/${skater.flag.toLowerCase()}.png" class="flag-img">
-                  <span class="athlete-name">${skater.name}</span>
-                </div>
-                <div class="col-short">
-                  ${skater.shortRank ? `<span class="order-badge">\${skater.shortRank}</span>` : ''}
-                  <span class="score-val">${skater.shortScore}</span>
-                </div>
-                <div class="col-free">
-                  ${skater.freeRank ? `<span class="order-badge">\${skater.freeRank}</span>` : ''}
-                  <span class="score-val">${skater.freeScore}</span>
-                </div>
-                <div class="col-total"><span class="total-val">${skater.totalScore}</span></div>
+            const item = document.createElement('div');
+            item.className = 'row-item';
+            item.style.transitionDelay = `${index * 0.08}s`; // Entrata a cascata automatica
+
+            item.innerHTML = `
+              <div class="col-rank"><div class="rank-num">${index + 1}</div></div>
+              <div class="col-athlete" style="display:flex; align-items:center;">
+                <span class="country-code">${skater.country || ''}</span>
+                <img src="https://flagcdn.com/w80/${(skater.flag || 'it').toLowerCase()}.png" class="flag-icon">
+                <span class="athlete-name">${skater.name || ''}</span>
               </div>
+              <div class="col-short">
+                ${skater.shortRank ? `<span class="sub-rank">(\${skater.shortRank})</span>` : ''}
+                <span class="score-num">${skater.shortScore || '-'}</span>
+              </div>
+              <div class="col-free">
+                ${skater.freeRank ? `<span class="sub-rank">(\${skater.freeRank})</span>` : ''}
+                <span class="score-num">${skater.freeScore || '-'}</span>
+              </div>
+              <div class="col-total"><span class="total-num">${skater.totalScore || '0.00'}</span></div>
             `;
+            rowsList.appendChild(item);
           });
         }
 
