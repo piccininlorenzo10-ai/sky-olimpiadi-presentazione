@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Sky Live Score Bug Dynamic</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&display=swap');
+
+    body {
+      margin: 0;
+      padding: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      font-family: 'Montserrat', sans-serif;
+      background: transparent;
+    }
+
+    .bug-container {
+      position: absolute;
+      top: 50px;
+      left: 60px;
+      width: 320px;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .bug-container.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Modalità Compatta (Spostamento del punteggio a sinistra) */
+    .bug-container.compact {
+      width: 180px;
+    }
+
+    .bug-container.compact .name {
+      display: none;
+    }
+
+    .header-title {
+      background: #0d2838;
+      color: #38b6ff;
+      font-size: 13px;
+      font-weight: 800;
+      padding: 6px 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    /* Leader Row (Nascosta per la prima concorrente) */
+    .leader-row {
+      background: #14374e;
+      color: white;
+      display: flex;
+      align-items: center;
+      padding: 6px 12px;
+      font-size: 15px;
+      font-weight: 700;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.3s;
+    }
+
+    .leader-row.hidden {
+      display: none;
+    }
+
+    .athlete-row {
+      background: #1b4b6b;
+      color: white;
+      display: flex;
+      align-items: center;
+      padding: 6px 12px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .country { margin-right: 8px; color: #a0aec0; font-size: 14px; }
+    .flag { width: 24px; height: 16px; border-radius: 2px; margin-right: 10px; object-fit: cover; }
+    .name { text-transform: uppercase; flex: 1; letter-spacing: 0.5px; white-space: nowrap; transition: opacity 0.3s; }
+    .score { font-size: 18px; font-weight: 800; color: #ffffff; }
+
+    .tech-box {
+      background: rgba(240, 244, 248, 0.95);
+      color: #1a2b3c;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .tech-title {
+      color: #555;
+      font-size: 11px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 2px;
+    }
+
+    .tech-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 3px;
+    }
+
+    .tech-value { font-weight: 800; color: #0d2838; }
+  </style>
+</head>
+<body>
+
+  <div class="bug-container" id="bug">
+    <div class="header-title" id="eventTitle">WOMEN'S FREE SKATING</div>
+    
+    <!-- Leader (Mostrato solo dalla 2a atleta in poi) -->
+    <div class="leader-row" id="leaderRow">
+      <span class="country" id="leaderCountry">CHN</span>
+      <img src="https://flagcdn.com/w80/cn.png" class="flag" id="leaderFlag">
+      <span class="name" id="leaderName">ZHANG</span>
+      <span class="score" id="leaderScore">61.54</span>
+    </div>
+
+    <!-- Atleta in Pista -->
+    <div class="athlete-row">
+      <span class="country" id="currentCountry">ITA</span>
+      <img src="https://flagcdn.com/w80/it.png" class="flag" id="currentFlag">
+      <span class="name" id="currentName">GUTMANN</span>
+      <span class="score" id="currentScore">11.88</span>
+    </div>
+
+    <!-- Dettaglio Elemento Tecnico -->
+    <div class="tech-box">
+      <div class="tech-title">TECHNICAL SCORE</div>
+      <div class="tech-row">
+        <span>BASE</span>
+        <span class="tech-value" id="baseScore">10.70</span>
+      </div>
+      <div class="tech-row">
+        <span>EXECUTION (GOE)</span>
+        <span class="tech-value" id="goeScore">+1.18</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const channel = new BroadcastChannel('sky_live_score_channel');
+
+    channel.onmessage = (event) => {
+      const data = event.data;
+      const bug = document.getElementById('bug');
+      const leaderRow = document.getElementById('leaderRow');
+
+      if (data.visible) {
+        document.getElementById('eventTitle').innerText = data.eventTitle || "WOMEN'S FREE SKATING";
+        
+        // Gestione Primo Atleta (Nasconde la riga del Leader)
+        if (data.isFirstAthlete) {
+          leaderRow.classList.add('hidden');
+        } else {
+          leaderRow.classList.remove('hidden');
+          document.getElementById('leaderCountry').innerText = data.leaderCountry || '';
+          document.getElementById('leaderFlag').src = `https://flagcdn.com/w80/${data.leaderFlag.toLowerCase()}.png`;
+          document.getElementById('leaderName').innerText = data.leaderName || '';
+          document.getElementById('leaderScore').innerText = data.leaderScore || '';
+        }
+
+        document.getElementById('currentCountry').innerText = data.currentCountry || '';
+        document.getElementById('currentFlag').src = `https://flagcdn.com/w80/${data.currentFlag.toLowerCase()}.png`;
+        document.getElementById('currentName').innerText = data.currentName || '';
+
+        // Calcolo Punteggio
+        const base = parseFloat(data.baseScore || 0);
+        const goe = parseFloat(data.goeScore || 0);
+        document.getElementById('baseScore').innerText = base.toFixed(2);
+        document.getElementById('goeScore').innerText = (goe >= 0 ? '+' : '') + goe.toFixed(2);
+        document.getElementById('currentScore').innerText = (base + goe).toFixed(2);
+
+        // Modalità Compatta (sposta punteggio a sinistra nascondendo il nome)
+        if (data.isCompact) {
+          bug.classList.add('compact');
+        } else {
+          bug.classList.remove('compact');
+        }
+
+        bug.classList.add('active');
+      } else {
+        bug.classList.remove('active');
+      }
+    };
+  </script>
+</body>
+</html>
