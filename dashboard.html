@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Regia Sky - Lower Third Pattinaggio</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #121824;
+      color: white;
+      padding: 20px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    h1 { color: #38b6ff; text-align: center; font-size: 22px; }
+    .form-group { margin-bottom: 12px; }
+    label { display: block; margin-bottom: 4px; font-weight: 600; color: #a0aec0; font-size: 14px; }
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #2d3748;
+      background: #1a202c;
+      color: white;
+      font-size: 15px;
+      box-sizing: border-box;
+    }
+    .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-show { background: #38b6ff; color: #000; }
+    .btn-hide { background: #e53e3e; color: white; }
+  </style>
+</head>
+<body>
+
+  <h1>🎛️ Pannello Regia Atleta</h1>
+
+  <div class="form-group">
+    <label>Etichetta Target:</label>
+    <input type="text" id="targetLabel" value="FOR 1ST">
+  </div>
+
+  <div class="form-group">
+    <label>Punteggio da Battere:</label>
+    <input type="text" id="targetScore" value="116.48">
+  </div>
+
+  <div class="form-group">
+    <label>Codice Nazione (es. ITA):</label>
+    <input type="text" id="countryCode" value="ITA">
+  </div>
+
+  <div class="form-group">
+    <label>Codice Bandiera ISO (es. it):</label>
+    <input type="text" id="countryFlag" value="it">
+  </div>
+
+  <div class="form-group">
+    <label>Nome Atleta:</label>
+    <input type="text" id="athleteName" value="LARA NAKI GUTMANN">
+  </div>
+
+  <div class="form-group">
+    <label>Brano / Colonna Sonora:</label>
+    <input type="text" id="musicTitle" value="JAWS (SOUNDTRACK)">
+  </div>
+
+  <div class="btn-group">
+    <button class="btn-show" onclick="sendData(true)">📺 IN ONDA</button>
+    <button class="btn-hide" onclick="sendData(false)">🚫 NASCONDI</button>
+  </div>
+
+  <script>
+    const channel = new BroadcastChannel('sky_graphics_channel');
+
+    function sendData(visible) {
+      const payload = {
+        visible: visible,
+        targetLabel: document.getElementById('targetLabel').value,
+        targetScore: document.getElementById('targetScore').value,
+        countryCode: document.getElementById('countryCode').value,
+        countryFlag: document.getElementById('countryFlag').value,
+        athleteName: document.getElementById('athleteName').value,
+        musicTitle: document.getElementById('musicTitle').value
+      };
+
+      channel.postMessage(payload);
+    }
+  </script>
+</body>
+</html>

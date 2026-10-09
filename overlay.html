@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Lower Third Pattinaggio</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,600;0,800;1,500&display=swap');
+
+    body {
+      margin: 0;
+      padding: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      font-family: 'Montserrat', sans-serif;
+      background: transparent;
+    }
+
+    .graphic-container {
+      position: absolute;
+      bottom: 120px;
+      left: 150px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .graphic-container.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .target-box {
+      background: #ffffff;
+      color: #1a2b3c;
+      padding: 6px 16px;
+      font-weight: 800;
+      font-size: 20px;
+      border-radius: 6px 6px 0 0;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      border: 1px solid #dcdcdc;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .target-box .label {
+      color: #555;
+      font-size: 16px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .target-box .score {
+      color: #0b3c5d;
+    }
+
+    .main-bar {
+      display: flex;
+      align-items: center;
+      background: linear-gradient(90deg, #0e3b43 0%, #175d69 60%, #1f7d8c 100%);
+      color: white;
+      height: 65px;
+      border-radius: 0 8px 8px 0;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+      padding-right: 20px;
+      border-left: 5px solid #38b6ff;
+    }
+
+    .country-code {
+      font-size: 26px;
+      font-weight: 800;
+      padding: 0 18px;
+      letter-spacing: 1px;
+    }
+
+    .flag-img {
+      height: 38px;
+      width: 55px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-right: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+
+    .athlete-name {
+      font-size: 28px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      white-space: nowrap;
+      margin-right: 40px;
+    }
+
+    .event-logo {
+      height: 45px;
+      margin-left: auto;
+    }
+
+    .music-bar {
+      background: rgba(240, 244, 248, 0.95);
+      color: #2c3e50;
+      font-size: 18px;
+      font-weight: 600;
+      padding: 8px 25px;
+      border-radius: 0 0 8px 8px;
+      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      border-left: 5px solid #38b6ff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="graphic-container" id="graphic">
+    <div class="target-box" id="targetBox">
+      <span class="label" id="targetLabel">FOR 1ST</span>
+      <span class="score" id="targetScore">116.48</span>
+    </div>
+
+    <div class="main-bar">
+      <div class="country-code" id="countryCode">ITA</div>
+      <img src="https://flagcdn.com/w160/it.png" id="flagImg" class="flag-img" alt="Flag">
+      <div class="athlete-name" id="athleteName">LARA NAKI GUTMANN</div>
+      <img src="17528.png" class="event-logo" id="eventLogo" alt="Logo">
+    </div>
+
+    <div class="music-bar" id="musicTitle">
+      JAWS (SOUNDTRACK)
+    </div>
+  </div>
+
+  <script>
+    // Canale di trasmissione diretto
+    const channel = new BroadcastChannel('sky_graphics_channel');
+
+    channel.onmessage = (event) => {
+      updateGraphic(event.data);
+    };
+
+    function updateGraphic(data) {
+      const container = document.getElementById('graphic');
+
+      if (data.visible) {
+        document.getElementById('targetLabel').innerText = data.targetLabel || 'FOR 1ST';
+        document.getElementById('targetScore').innerText = data.targetScore || '';
+        document.getElementById('countryCode').innerText = data.countryCode || '';
+        document.getElementById('flagImg').src = `https://flagcdn.com/w160/${data.countryFlag.toLowerCase()}.png`;
+        document.getElementById('athleteName').innerText = data.athleteName || '';
+        document.getElementById('musicTitle').innerText = data.musicTitle || '';
+        
+        container.classList.add('active');
+      } else {
+        container.classList.remove('active');
+      }
+    }
+  </script>
+</body>
+</html>
