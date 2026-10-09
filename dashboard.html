@@ -1,78 +1,99 @@
-<!-- Sezione Live Score Elemento -->
-<div style="background:#1a202c; padding:15px; border-radius:8px; margin-top:20px;">
-  <h3 style="color:#38b6ff; margin-top:0;">⛸️ Live Score Elemento (In alto a sinistra)</h3>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Regia Sky - Lower Third Pattinaggio</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #121824;
+      color: white;
+      padding: 20px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    h1 { color: #38b6ff; text-align: center; font-size: 22px; }
+    .form-group { margin-bottom: 12px; }
+    label { display: block; margin-bottom: 4px; font-weight: 600; color: #a0aec0; font-size: 14px; }
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #2d3748;
+      background: #1a202c;
+      color: white;
+      font-size: 15px;
+      box-sizing: border-box;
+    }
+    .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-show { background: #38b6ff; color: #000; }
+    .btn-hide { background: #e53e3e; color: white; }
+  </style>
+</head>
+<body>
 
-  <label>Valore Base Elemento (Base Value):</label>
-  <input type="number" step="0.1" id="baseScore" value="10.70">
+  <h1>🎛️ Pannello Regia Atleta</h1>
 
-  <label style="margin-top:10px;">GOE (-5 a +5)[cite: 10]:</label>
-  <input type="number" step="0.01" id="goeScore" value="1.18">
+  <div class="form-group">
+    <label>Etichetta Target:</label>
+    <input type="text" id="targetLabel" value="FOR 1ST">
+  </div>
 
-  <button onclick="sendLiveScore(true)" style="background:#38b6ff; color:black; margin-top:10px; width:100%; padding:10px; font-weight:bold; border:none; border-radius:5px;">
-    MOSTRA LIVE BUG
-  </button>
-  <button onclick="sendLiveScore(false)" style="background:#e53e3e; color:white; margin-top:5px; width:100%; padding:10px; font-weight:bold; border:none; border-radius:5px;">
-    NASCONDI BUG
-  </button>
-</div>
+  <div class="form-group">
+    <label>Punteggio da Battere:</label>
+    <input type="text" id="targetScore" value="116.48">
+  </div>
 
-<script>
-  const liveChannel = new BroadcastChannel('sky_live_score_channel');
+  <div class="form-group">
+    <label>Codice Nazione (es. ITA):</label>
+    <input type="text" id="countryCode" value="ITA">
+  </div>
 
-  function sendLiveScore(visible) {
-    liveChannel.postMessage({
-      visible: visible,
-      eventTitle: "WOMEN'S FREE SKATING",
-      leaderCountry: "CHN",
-      leaderFlag: "cn",
-      leaderName: "ZHANG",
-      leaderScore: "61.54",
-      currentCountry: document.getElementById('countryCode').value,
-      currentFlag: document.getElementById('countryFlag').value,
-      currentName: document.getElementById('athleteName').value,
-      baseScore: document.getElementById('baseScore').value,
-      goeScore: document.getElementById('goeScore').value
-    });
-  }
-</script>
-<div style="background:#1a202c; padding:15px; border-radius:8px; margin-top:20px;">
-  <h3 style="color:#38b6ff; margin-top:0;">⛸️ Controllo Bug Punti Live</h3>
+  <div class="form-group">
+    <label>Codice Bandiera ISO (es. it):</label>
+    <input type="text" id="countryFlag" value="it">
+  </div>
 
-  <label><input type="checkbox" id="isFirstAthlete" checked> È il primo atleta? (Nasconde la riga del Leader)</label>
+  <div class="form-group">
+    <label>Nome Atleta:</label>
+    <input type="text" id="athleteName" value="LARA NAKI GUTMANN">
+  </div>
 
-  <br><br>
-  <button onclick="toggleCompact(true)" style="background:#ecc94b; color:black; padding:8px; font-weight:bold; border:none; border-radius:5px; width:48%;">
-    ⬅️ COMPATTA (Punti a sx)
-  </button>
-  <button onclick="toggleCompact(false)" style="background:#48bb78; color:white; padding:8px; font-weight:bold; border:none; border-radius:5px; width:48%;">
-    ➡️ ESPANDI (Punti a dx)
-  </button>
-</div>
+  <div class="form-group">
+    <label>Brano / Colonna Sonora:</label>
+    <input type="text" id="musicTitle" value="JAWS (SOUNDTRACK)">
+  </div>
 
-<script>
-  let compactState = false;
+  <div class="btn-group">
+    <button class="btn-show" onclick="sendData(true)">📺 IN ONDA</button>
+    <button class="btn-hide" onclick="sendData(false)">🚫 NASCONDI</button>
+  </div>
 
-  function toggleCompact(compact) {
-    compactState = compact;
-    sendLiveScore(true);
-  }
+  <script>
+    const channel = new BroadcastChannel('sky_graphics_channel');
 
-  function sendLiveScore(visible) {
-    const liveChannel = new BroadcastChannel('sky_live_score_channel');
-    liveChannel.postMessage({
-      visible: visible,
-      eventTitle: "WOMEN'S FREE SKATING",
-      isFirstAthlete: document.getElementById('isFirstAthlete').checked,
-      isCompact: compactState,
-      leaderCountry: "CHN",
-      leaderFlag: "cn",
-      leaderName: "ZHANG",
-      leaderScore: "61.54",
-      currentCountry: document.getElementById('countryCode').value,
-      currentFlag: document.getElementById('countryFlag').value,
-      currentName: document.getElementById('athleteName').value,
-      baseScore: document.getElementById('baseScore').value,
-      goeScore: document.getElementById('goeScore').value
-    });
-  }
-</script>
+    function sendData(visible) {
+      const payload = {
+        visible: visible,
+        targetLabel: document.getElementById('targetLabel').value,
+        targetScore: document.getElementById('targetScore').value,
+        countryCode: document.getElementById('countryCode').value,
+        countryFlag: document.getElementById('countryFlag').value,
+        athleteName: document.getElementById('athleteName').value,
+        musicTitle: document.getElementById('musicTitle').value
+      };
+
+      channel.postMessage(payload);
+    }
+  </script>
+</body>
+</html>
