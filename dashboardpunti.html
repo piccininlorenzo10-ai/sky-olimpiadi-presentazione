@@ -1,0 +1,78 @@
+<!-- Sezione Live Score Elemento -->
+<div style="background:#1a202c; padding:15px; border-radius:8px; margin-top:20px;">
+  <h3 style="color:#38b6ff; margin-top:0;">⛸️ Live Score Elemento (In alto a sinistra)</h3>
+
+  <label>Valore Base Elemento (Base Value):</label>
+  <input type="number" step="0.1" id="baseScore" value="10.70">
+
+  <label style="margin-top:10px;">GOE (-5 a +5)[cite: 10]:</label>
+  <input type="number" step="0.01" id="goeScore" value="1.18">
+
+  <button onclick="sendLiveScore(true)" style="background:#38b6ff; color:black; margin-top:10px; width:100%; padding:10px; font-weight:bold; border:none; border-radius:5px;">
+    MOSTRA LIVE BUG
+  </button>
+  <button onclick="sendLiveScore(false)" style="background:#e53e3e; color:white; margin-top:5px; width:100%; padding:10px; font-weight:bold; border:none; border-radius:5px;">
+    NASCONDI BUG
+  </button>
+</div>
+
+<script>
+  const liveChannel = new BroadcastChannel('sky_live_score_channel');
+
+  function sendLiveScore(visible) {
+    liveChannel.postMessage({
+      visible: visible,
+      eventTitle: "WOMEN'S FREE SKATING",
+      leaderCountry: "CHN",
+      leaderFlag: "cn",
+      leaderName: "ZHANG",
+      leaderScore: "61.54",
+      currentCountry: document.getElementById('countryCode').value,
+      currentFlag: document.getElementById('countryFlag').value,
+      currentName: document.getElementById('athleteName').value,
+      baseScore: document.getElementById('baseScore').value,
+      goeScore: document.getElementById('goeScore').value
+    });
+  }
+</script>
+<div style="background:#1a202c; padding:15px; border-radius:8px; margin-top:20px;">
+  <h3 style="color:#38b6ff; margin-top:0;">⛸️ Controllo Bug Punti Live</h3>
+
+  <label><input type="checkbox" id="isFirstAthlete" checked> È il primo atleta? (Nasconde la riga del Leader)</label>
+
+  <br><br>
+  <button onclick="toggleCompact(true)" style="background:#ecc94b; color:black; padding:8px; font-weight:bold; border:none; border-radius:5px; width:48%;">
+    ⬅️ COMPATTA (Punti a sx)
+  </button>
+  <button onclick="toggleCompact(false)" style="background:#48bb78; color:white; padding:8px; font-weight:bold; border:none; border-radius:5px; width:48%;">
+    ➡️ ESPANDI (Punti a dx)
+  </button>
+</div>
+
+<script>
+  let compactState = false;
+
+  function toggleCompact(compact) {
+    compactState = compact;
+    sendLiveScore(true);
+  }
+
+  function sendLiveScore(visible) {
+    const liveChannel = new BroadcastChannel('sky_live_score_channel');
+    liveChannel.postMessage({
+      visible: visible,
+      eventTitle: "WOMEN'S FREE SKATING",
+      isFirstAthlete: document.getElementById('isFirstAthlete').checked,
+      isCompact: compactState,
+      leaderCountry: "CHN",
+      leaderFlag: "cn",
+      leaderName: "ZHANG",
+      leaderScore: "61.54",
+      currentCountry: document.getElementById('countryCode').value,
+      currentFlag: document.getElementById('countryFlag').value,
+      currentName: document.getElementById('athleteName').value,
+      baseScore: document.getElementById('baseScore').value,
+      goeScore: document.getElementById('goeScore').value
+    });
+  }
+</script>
