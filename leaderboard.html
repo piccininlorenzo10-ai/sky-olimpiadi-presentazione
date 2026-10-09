@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Sky Winter Games - Classifica Premium</title>
+  <title>Sky Winter Games - Classifica</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&display=swap');
 
@@ -24,7 +24,7 @@
       opacity: 0;
       transform: translateY(30px);
       transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-      border-radius: 14px;
+      border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
       background: rgba(8, 22, 36, 0.94);
@@ -37,7 +37,6 @@
       transform: translateY(0);
     }
 
-    /* Header Modello Premium Sky */
     .header {
       background: linear-gradient(90deg, #071726 0%, #004b87 100%);
       padding: 18px 30px;
@@ -47,11 +46,7 @@
       border-bottom: 3px solid #38b6ff;
     }
 
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
+    .header-left { display: flex; align-items: center; gap: 16px; }
 
     .tag-discipline {
       background: #38b6ff;
@@ -79,7 +74,6 @@
       letter-spacing: 2px;
     }
 
-    /* Intestazione Colonne */
     .col-titles {
       display: flex;
       align-items: center;
@@ -98,11 +92,7 @@
     .col-free { width: 190px; text-align: right; }
     .col-total { width: 170px; text-align: right; color: #38b6ff; }
 
-    /* Righe Atleti */
-    .rows-container {
-      display: flex;
-      flex-direction: column;
-    }
+    .rows-container { display: flex; flex-direction: column; }
 
     .row-item {
       display: flex;
@@ -122,7 +112,6 @@
 
     .row-item:nth-child(even) { background: rgba(255, 255, 255, 0.02); }
 
-    /* Badge Posizione */
     .rank-num {
       width: 34px;
       height: 34px;
@@ -175,17 +164,17 @@
     <div class="header">
       <div class="header-left">
         <span class="tag-discipline">FIGURE SKATING</span>
-        <span class="title-main" id="titleText">PATTINAGGIO DI FIGURA - CLASSIFICA</span>
+        <span class="title-main" id="titleText">WOMEN'S SINGLE SKATING</span>
       </div>
-      <div class="header-right">SKY WINTER GAMES</div>
+      <div class="header-right">SKY WINTER GAMES ™</div>
     </div>
 
     <div class="col-titles">
       <div class="col-rank">POS</div>
-      <div class="col-athlete">PATTINATORE / NAZIONE</div>
+      <div class="col-athlete">ATHLETE</div>
       <div class="col-short">SHORT PROGRAM</div>
       <div class="col-free">FREE SKATING</div>
-      <div class="col-total">TOTALE</div>
+      <div class="col-total">TOTAL</div>
     </div>
 
     <div class="rows-container" id="rowsList"></div>
@@ -200,7 +189,7 @@
       const rowsList = document.getElementById('rowsList');
 
       if (data.visible) {
-        document.getElementById('titleText').innerText = data.title || "PATTINAGGIO DI FIGURA - CLASSIFICA";
+        document.getElementById('titleText').innerText = data.title || "WOMEN'S SINGLE SKATING";
         rowsList.innerHTML = '';
 
         if (data.skaters && Array.isArray(data.skaters)) {
