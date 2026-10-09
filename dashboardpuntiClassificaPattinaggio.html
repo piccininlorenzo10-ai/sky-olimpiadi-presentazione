@@ -1,19 +1,31 @@
-<!-- Sezione Pannello Classifica -->
-<div class="card" style="margin-top:20px;">
-  <h3 style="color:#38b6ff; margin-top:0;">📊 Gestione Classifica Generale (Leaderboard)</h3>
+<!-- Sezione Classifica Dinamica Avanzata -->
+<div class="card" style="margin-top:20px; background:#182232; border:1px solid #2d3748;">
+  <h2 style="color:#38b6ff; font-size:18px; margin-top:0;">📊 Regia Classifica Generale</h2>
   
   <div class="form-group">
-    <label>Titolo Categoria:</label>
+    <label>Titolo Categoria / Gara:</label>
     <input type="text" id="boardTitle" value="WOMEN'S SINGLE SKATING">
   </div>
 
-  <button onclick="addSkaterRow()" style="background:#2b6cb0; color:white; padding:8px; border:none; border-radius:5px; margin-bottom:10px; cursor:pointer;">
-    ➕ Aggiungi Atleta in Classifica
-  </button>
-
-  <div id="skatersInputs">
-    <!-- Primi 3 Atleti preimpostati dall'immagine -->
+  <div style="display:flex; justify-content:space-between; align-items:center; margin: 15px 0 10px 0;">
+    <label style="color:#e2e8f0;">Lista Pattinatori in Classifica:</label>
+    <button onclick="addSkater()" style="background:#38b6ff; color:#000; padding:6px 12px; font-weight:bold; border:none; border-radius:4px; cursor:pointer;">
+      ➕ Aggiungi Pattinatore
+    </button>
   </div>
+
+  <!-- Intestazione Tabella Regia -->
+  <div style="display:grid; grid-template-columns: 55px 45px 1fr 65px 65px 70px 30px; gap:6px; font-size:11px; color:#7f9cb5; font-weight:bold; margin-bottom:5px;">
+    <span>NAZ</span>
+    <span>FLAG</span>
+    <span>NOME PATTINATORE</span>
+    <span>SHORT</span>
+    <span>FREE</span>
+    <span>TOTALE</span>
+    <span></span>
+  </div>
+
+  <div id="skatersContainer"></div>
 
   <div class="btn-group" style="margin-top:15px;">
     <button class="btn-show" onclick="sendLeaderboard(true)">📺 MOSTRA CLASSIFICA IN ONDA</button>
@@ -24,51 +36,70 @@
 <script>
   const boardChannel = new BroadcastChannel('sky_leaderboard_channel');
 
-  // Dati di default basati sulla tua immagine
-  const defaultSkaters = [
-    { country: 'USA', flag: 'us', name: 'AMBER GLENN', shortRank: '13', shortScore: '67.39', freeRank: '1', freeScore: '147.52', total: '214.91' },
-    { country: 'KOR', flag: 'kr', name: 'SHIN JIA', shortRank: '14', shortScore: '65.66', freeRank: '2', freeScore: '141.02', total: '206.68' },
-    { country: 'ITA', flag: 'it', name: 'LARA NAKI GUTMANN', shortRank: '18', shortScore: '61.56', freeRank: '3', freeScore: '134.19', total: '195.75' }
+  let skatersList = [
+    { country: 'USA', flag: 'us', name: 'AMBER GLENN', shortScore: '67.39', freeScore: '147.52' },
+    { country: 'KOR', flag: 'kr', name: 'SHIN JIA', shortScore: '65.66', freeScore: '141.02' },
+    { country: 'ITA', flag: 'it', name: 'LARA NAKI GUTMANN', shortScore: '61.56', freeScore: '134.19' }
   ];
 
-  function renderSkaterInputs() {
-    const container = document.getElementById('skatersInputs');
+  function renderSkaterRows() {
+    const container = document.getElementById('skatersContainer');
     container.innerHTML = '';
-    defaultSkaters.forEach((s, i) => {
+
+    skatersList.forEach((skater, index) => {
+      const short = parseFloat(skater.shortScore) || 0;
+      const free = parseFloat(skater.freeScore) || 0;
+      const total = (short + free).toFixed(2);
+
       container.innerHTML += `
-        <div style="background:#0d1117; padding:8px; border-radius:5px; margin-bottom:8px; display:grid; grid-template-columns: 50px 40px 1fr 60px 60px 70px; gap:5px;">
-          <input type="text" value="${s.country}" id="c_${i}" placeholder="Naz">
-          <input type="text" value="${s.flag}" id="f_${i}" placeholder="Flag">
-          <input type="text" value="${s.name}" id="n_${i}" placeholder="Nome">
-          <input type="text" value="${s.shortScore}" id="ss_${i}" placeholder="Short">
-          <input type="text" value="${s.freeScore}" id="fs_${i}" placeholder="Free">
-          <input type="text" value="${s.total}" id="t_${i}" placeholder="Tot">
+        <div style="display:grid; grid-template-columns: 55px 45px 1fr 65px 65px 70px 30px; gap:6px; margin-bottom:6px; align-items:center;">
+          <input type="text" value="${skater.country}" oninput="updateSkater(${index}, 'country', this.value)" style="text-align:center;">
+          <input type="text" value="${skater.flag}" oninput="updateSkater(${index}, 'flag', this.value)" style="text-align:center;">
+          <input type="text" value="${skater.name}" oninput="updateSkater(${index}, 'name', this.value)">
+          <input type="number" step="0.01" value="${skater.shortScore}" oninput="updateSkater(${index}, 'shortScore', this.value)">
+          <input type="number" step="0.01" value="${skater.freeScore}" oninput="updateSkater(${index}, 'freeScore', this.value)">
+          <input type="text" value="${total}" readonly style="background:#2d3748; color:#38b6ff; font-weight:bold; text-align:center;">
+          <button onclick="removeSkater(${index})" style="background:#e53e3e; color:white; border:none; border-radius:4px; padding:6px; cursor:pointer; font-weight:bold;">✕</button>
         </div>
       `;
     });
   }
 
-  renderSkaterInputs();
+  function updateSkater(index, field, value) {
+    skatersList[index][field] = value;
+    renderSkaterRows();
+  }
+
+  function addSkater() {
+    skatersList.push({ country: 'ITA', flag: 'it', name: 'NUOVO ATLETA', shortScore: '0.00', freeScore: '0.00' });
+    renderSkaterRows();
+  }
+
+  function removeSkater(index) {
+    skatersList.splice(index, 1);
+    renderSkaterRows();
+  }
 
   function sendLeaderboard(visible) {
-    const skaters = [];
-    for (let i = 0; i < defaultSkaters.length; i++) {
-      skaters.push({
-        country: document.getElementById(`c_${i}`).value,
-        flag: document.getElementById(`f_${i}`).value,
-        name: document.getElementById(`n_${i}`).value,
-        shortRank: defaultSkaters[i].shortRank,
-        shortScore: document.getElementById(`ss_${i}`).value,
-        freeRank: defaultSkaters[i].freeRank,
-        freeScore: document.getElementById(`fs_${i}`).value,
-        totalScore: document.getElementById(`t_${i}`).value
-      });
-    }
+    const preparedSkaters = skatersList.map(s => {
+      const short = parseFloat(s.shortScore) || 0;
+      const free = parseFloat(s.freeScore) || 0;
+      return {
+        country: s.country,
+        flag: s.flag,
+        name: s.name,
+        shortScore: short > 0 ? short.toFixed(2) : '-',
+        freeScore: free > 0 ? free.toFixed(2) : '-',
+        totalScore: (short + free).toFixed(2)
+      };
+    });
 
     boardChannel.postMessage({
       visible: visible,
       title: document.getElementById('boardTitle').value,
-      skaters: skaters
+      skaters: preparedSkaters
     });
   }
+
+  renderSkaterRows();
 </script>
