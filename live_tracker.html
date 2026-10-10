@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Sky Winter Games - Live Athlete Tracker</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      font-family: 'Montserrat', sans-serif;
+      background: transparent;
+      color: white;
+    }
+
+    /* Widget Box (Posizionato in basso a destra come in TV) */
+    .tracker-container {
+      position: absolute;
+      bottom: 60px;
+      right: 60px;
+      width: 320px;
+      background: rgba(6, 16, 28, 0.92);
+      backdrop-filter: blur(12px);
+      border-radius: 14px;
+      border: 1px solid rgba(56, 182, 255, 0.35);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+      padding: 16px;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .tracker-container.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Header Atleta */
+    .athlete-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 8px;
+    }
+
+    .athlete-name {
+      font-size: 15px;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: #ffffff;
+    }
+
+    .athlete-nation {
+      background: #38b6ff;
+      color: #05101a;
+      font-size: 10px;
+      font-weight: 900;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* Layout Interno: Mini Mappa a Sinistra + Cronometro a Destra */
+    .tracker-body {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    /* Mini Mappa Verticale */
+    .minimap-box {
+      position: relative;
+      width: 90px;
+      height: 180px;
+      background: rgba(3, 10, 18, 0.8);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      overflow: hidden;
+    }
+
+    svg.minimap-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .mini-track {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.25);
+      stroke-width: 4;
+      stroke-linecap: round;
+    }
+
+    .mini-track-active {
+      fill: none;
+      stroke: #00ff88;
+      stroke-width: 4;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 6px #00ff88);
+    }
+
+    /* Pallino Posizione Atleta sulla Mini Mappa */
+    .athlete-dot {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: #ff3333;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #ff3333;
+      transform: translate(-50%, -50%);
+      transition: top 0.05s linear, left 0.05s linear;
+    }
+
+    /* Box Cronometro */
+    .chrono-box {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .chrono-label {
+      font-size: 9px;
+      font-weight: 800;
+      color: #8a9ba8;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .chrono-time {
+      font-size: 26px;
+      font-weight: 900;
+      color: #00ff88;
+      font-family: monospace;
+      letter-spacing: -1px;
+      margin: 2px 0 6px 0;
+      text-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
+    }
+
+    .status-badge {
+      font-size: 10px;
+      font-weight: 900;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-align: center;
+      text-transform: uppercase;
+      background: rgba(0, 255, 136, 0.15);
+      color: #00ff88;
+      border: 1px solid rgba(0, 255, 136, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="tracker-container" id="trackerBox">
+    <div class="athlete-header">
+      <div class="athlete-name" id="athName">M. ODERMATT</div>
+      <div class="athlete-nation" id="athNat">SUI</div>
+    </div>
+
+    <div class="tracker-body">
+      <!-- Mini Mappa -->
+      <div class="minimap-box">
+        <svg class="minimap-svg" viewBox="0 0 90 180">
+          <!-- Tracciato Grigio di Sfondo -->
+          <path class="mini-track" d="M 45,10 C 25,50 65,90 45,130 C 30,150 50,165 45,170" />
+          <!-- Tracciato Verde percorso -->
+          <path class="mini-track-active" id="miniActivePath" d="M 45,10 C 25,50 65,90 45,130 C 30,150 50,165 45,170" />
+        </svg>
+        <!-- Pallino Atleta in Movimento -->
+        <div class="athlete-dot" id="athDot" style="top: 10px; left: 45px;"></div>
+      </div>
+
+      <!-- Cronometro e Stato -->
+      <div class="chrono-box">
+        <div class="chrono-label">TEMPO LIVE</div>
+        <div class="chrono-time" id="chronoDisplay">00:00.00</div>
+        <div class="status-badge" id="statusBadge">IN DISCESA</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const channel = new BroadcastChannel('sky_live_tracker_channel');
+    const box = document.getElementById('trackerBox');
+    const dot = document.getElementById('athDot');
+    const chronoDisp = document.getElementById('chronoDisplay');
+    const statusBd = document.getElementById('statusBadge');
+    const activePath = document.getElementById('miniActivePath');
+
+    const pathLength = activePath.getTotalLength();
+    activePath.style.strokeDasharray = pathLength;
+    activePath.style.strokeDashoffset = pathLength;
+
+    let timerInterval = null;
+    let startTime = 0;
+
+    // Coordinate chiave lungo la mini-mappa (percentuali o pixel stimati per il pallino)
+    // Tracciato: M 45,10 -> C 25,50 -> 65,90 -> 45,130 -> 45,170
+    function getPointAlongPath(progress) {
+      // Semplificazione coordinate x,y basate sulla curva SVG
+      let x, y;
+      if (progress <= 0.25) {
+        // Da Start a curva 1
+        x = 45 - (progress * 4 * 20);
+        y = 10 + (progress * 4 * 40);
+      } else if (progress <= 0.55) {
+        // Da curva 1 a Jump 1
+        let p = (progress - 0.25) / 0.30;
+        x = 25 + (p * 40);
+        y = 50 + (p * 40);
+      } else if (progress <= 0.80) {
+        // Da Jump 1 a curva bassa
+        let p = (progress - 0.55) / 0.25;
+        x = 65 - (p * 35);
+        y = 90 + (p * 40);
+      } else {
+        // Fino al Finish
+        let p = (progress - 0.80) / 0.20;
+        x = 30 + (p * 15);
+        y = 130 + (p * 40);
+      }
+      return { x, y };
+    }
+
+    channel.onmessage = (event) => {
+      const data = event.data;
+      if (data.action === 'start') {
+        document.getElementById('athName').innerText = data.name || 'ATLETA';
+        document.getElementById('athNat').innerText = data.nation || 'ITA';
+        box.classList.add('active');
+        
+        // Reset animazione
+        clearInterval(timerInterval);
+        startTime = Date.now();
+        let duration = 58000; // 58 secondi di discesa simulata
+        let currentProg = 0;
+
+        activePath.style.strokeDashoffset = pathLength;
+
+        timerInterval = setInterval(() => {
+          let elapsed = Date.now() - startTime;
+          currentProg = elapsed / duration;
+
+          if (currentProg >= 1) {
+            currentProg = 1;
+            clearInterval(timerInterval);
+            statusBd.innerText = "ARRIVO";
+            statusBd.style.color = "#38b6ff";
+            statusBd.style.borderColor = "#38b6ff";
+            statusBd.style.background = "rgba(56, 182, 255, 0.15)";
+          }
+
+          // Aggiorna Cronometro formato mm:ss.ms
+          let mins = Math.floor(elapsed / 60000);
+          let secs = Math.floor((elapsed % 60000) / 1000);
+          let cent = Math.floor((elapsed % 1000) / 10);
+          chronoDisp.innerText = 
+            (mins < 10 ? "0" + mins : mins) + ":" + 
+            (secs < 10 ? "0" + secs : secs) + "." + 
+            (cent < 10 ? "0" + cent : cent);
+
+          // Aggiorna Linea SVG
+          activePath.style.strokeDashoffset = pathLength * (1 - currentProg);
+
+          // Muovi il pallino rosso sulla mini mappa
+          let pt = getPointAlongPath(currentProg);
+          dot.style.left = pt.x + 'px';
+          dot.style.top = pt.y + 'px';
+
+        }, 30);
+
+      } else if (data.action === 'hide') {
+        box.classList.remove('active');
+        clearInterval(timerInterval);
+      }
+    };
+  </script>
+</body>
+</html>
