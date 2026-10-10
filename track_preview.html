@@ -30,7 +30,6 @@
 
     .track-wrapper.active { opacity: 1; }
 
-    /* SVG ridotto e centrato perfettamente */
     svg.track-svg {
       width: 1200px;
       height: 900px;
@@ -41,53 +40,55 @@
 
     /* Linea di Partenza e Arrivo */
     .start-finish-line {
-      stroke: #ef4444;
-      stroke-width: 6;
+      stroke: #ff2222;
+      stroke-width: 8;
       stroke-linecap: round;
-      filter: drop-shadow(0 0 10px #ef4444);
+      filter: drop-shadow(0 0 12px #ff0000);
     }
 
-    /* Stile Linea Tracciato Base */
+    /* Stile Linea Tracciato Base (più scura e marcata per contrasto sulla neve) */
     .path-bg {
       fill: none;
-      stroke: rgba(255, 255, 255, 0.22);
-      stroke-width: 7;
+      stroke: rgba(0, 0, 0, 0.45);
+      stroke-width: 11;
       stroke-linecap: round;
       stroke-linejoin: round;
     }
 
-    /* Traccia Animata Verde Neon */
+    /* Traccia Animata Verde Neon ad Altissimo Contrasto */
     .path-active {
       fill: none;
       stroke: #00ff88;
-      stroke-width: 7;
+      stroke-width: 10;
       stroke-linecap: round;
       stroke-linejoin: round;
-      filter: drop-shadow(0 0 14px #00ff88);
+      filter: drop-shadow(0 0 20px #00ff88) drop-shadow(0 0 6px #ffffff);
       stroke-dasharray: 3000;
       stroke-dashoffset: 3000;
       transition: stroke-dashoffset 0.04s linear;
     }
 
-    /* Salti Tratteggiati */
+    /* Salti Tratteggiati Gialli ad Alta Visibilità */
     .path-jump {
       fill: none;
-      stroke: #ecc94b;
-      stroke-width: 6;
+      stroke: #ffcc00;
+      stroke-width: 9;
       stroke-linecap: round;
-      stroke-dasharray: 12 10;
-      filter: drop-shadow(0 0 10px #ecc94b);
+      stroke-dasharray: 14 12;
+      filter: drop-shadow(0 0 16px #ffcc00);
     }
 
-    /* Bandiere (Pali Rossi e Blu) */
+    /* Bandiere (Pali Rossi e Blu con bordo bianco per risaltare sulla neve) */
     .gate-flag {
-      r: 6;
-      filter: drop-shadow(0 0 8px currentColor);
+      r: 7;
+      stroke: #ffffff;
+      stroke-width: 2.5;
+      filter: drop-shadow(0 0 10px rgba(0,0,0,0.8));
     }
-    .gate-red { fill: #ef4444; color: #ef4444; }
-    .gate-blue { fill: #38b6ff; color: #38b6ff; }
+    .gate-red { fill: #ff3333; }
+    .gate-blue { fill: #00bfff; }
 
-    /* Card Dati Pista Sky Winter Games (Resa più compatta e ben posizionata a sinistra) */
+    /* Card Dati Pista Sky Winter Games */
     .pista-card {
       position: absolute;
       top: 100px;
@@ -215,7 +216,7 @@
       <!-- Linea di Partenza (Inizio in Alto) -->
       <line x1="470" y1="50" x2="530" y2="50" class="start-finish-line" />
 
-      <!-- Sfondo Linea Grigia del Percorso (Scala ridotta 0.75) -->
+      <!-- Sfondo Linea del Percorso (Ombra scura di contrasto) -->
       <path class="path-bg" d="
         M 500,50 
         C 470,120 540,170 560,230 
@@ -232,7 +233,7 @@
       <!-- Salto 2 -->
       <path class="path-jump" d="M 670,600 C 700,620 630,660 530,680" />
 
-      <!-- Bandiere (Pali Rossi e Blu) -->
+      <!-- Bandiere con bordo bianco per massimo risalto -->
       <circle cx="480" cy="80" class="gate-flag gate-red" />
       <circle cx="540" cy="90" class="gate-flag gate-blue" />
       <circle cx="460" cy="150" class="gate-flag gate-blue" />
@@ -254,7 +255,7 @@
       <circle cx="400" cy="780" class="gate-flag gate-blue" />
       <circle cx="520" cy="780" class="gate-flag gate-red" />
 
-      <!-- Traccia Animata Verde Neon -->
+      <!-- Traccia Animata Verde Neon con Glow Luminoso -->
       <path class="path-active" id="activePath" d="
         M 500,50 
         C 470,120 540,170 560,230 
@@ -269,7 +270,7 @@
       <line x1="530" y1="795" x2="610" y2="765" class="start-finish-line" />
     </svg>
 
-    <!-- Cartellini Waypoints proporzionati -->
+    <!-- Cartellini Waypoints -->
     <div class="waypoint" id="wpStart" style="top: 125px; left: 860px;">
       <div class="wp-pin red"></div>
       <div class="wp-box">🔴 START</div>
