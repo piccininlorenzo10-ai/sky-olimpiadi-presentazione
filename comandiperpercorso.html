@@ -1,0 +1,26 @@
+<!-- Controllo Anteprima Percorso Sci -->
+<div class="card" style="margin-top:20px; background:#1e293b; border:1px solid #00ff88;">
+  <h3 style="color:#00ff88; margin-top:0;">🏔️ Regia Anteprima Percorso Sci (3D Track)</h3>
+  <p style="font-size:12px; color:#94a3b8;">Traccia in diretta il percorso della pista con salti, waypoint e velocità stimata.</p>
+
+  <div class="form-group">
+    <label>Nome Pista / Località:</label>
+    <input type="text" id="trackNameInput" value="SKY DOWNHILL - CORTINA 2026">
+  </div>
+
+  <div class="btn-group">
+    <button class="btn-show" onclick="sendTrackPreview(true)" style="background:#00ff88; color:#08131d;">🎬 AVVIA ANTEPRIMA PERCORSO</button>
+    <button class="btn-hide" onclick="sendTrackPreview(false)">🚫 NASCONDI ANTEPRIMA</button>
+  </div>
+</div>
+
+<script>
+  const trackChannel = new BroadcastChannel('sky_track_channel');
+
+  function sendTrackPreview(visible) {
+    trackChannel.postMessage({
+      visible: visible,
+      name: document.getElementById('trackNameInput').value
+    });
+  }
+</script>

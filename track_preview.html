@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Sky Winter Games - 3D Ski Track Preview</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      font-family: 'Montserrat', sans-serif;
+      background: transparent;
+      color: white;
+    }
+
+    .track-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1920px;
+      height: 1080px;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      background: transparent;
+    }
+
+    .track-wrapper.active { opacity: 1; }
+
+    /* SVG ridotto e centrato perfettamente */
+    svg.track-svg {
+      width: 1200px;
+      height: 900px;
+      position: absolute;
+      top: 90px;
+      left: 480px;
+    }
+
+    /* Linea di Partenza e Arrivo */
+    .start-finish-line {
+      stroke: #ef4444;
+      stroke-width: 6;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 10px #ef4444);
+    }
+
+    /* Stile Linea Tracciato Base */
+    .path-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.22);
+      stroke-width: 7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* Traccia Animata Verde Neon */
+    .path-active {
+      fill: none;
+      stroke: #00ff88;
+      stroke-width: 7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 0 14px #00ff88);
+      stroke-dasharray: 3000;
+      stroke-dashoffset: 3000;
+      transition: stroke-dashoffset 0.04s linear;
+    }
+
+    /* Salti Tratteggiati */
+    .path-jump {
+      fill: none;
+      stroke: #ecc94b;
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke-dasharray: 12 10;
+      filter: drop-shadow(0 0 10px #ecc94b);
+    }
+
+    /* Bandiere (Pali Rossi e Blu) */
+    .gate-flag {
+      r: 6;
+      filter: drop-shadow(0 0 8px currentColor);
+    }
+    .gate-red { fill: #ef4444; color: #ef4444; }
+    .gate-blue { fill: #38b6ff; color: #38b6ff; }
+
+    /* Card Dati Pista Sky Winter Games (Resa più compatta e ben posizionata a sinistra) */
+    .pista-card {
+      position: absolute;
+      top: 100px;
+      left: 70px;
+      width: 370px;
+      background: rgba(8, 22, 38, 0.94);
+      backdrop-filter: blur(14px);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid rgba(56, 182, 255, 0.4);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
+      transform: translateX(-40px);
+      opacity: 0;
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .track-wrapper.active .pista-card {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    .card-header-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .badge-tag {
+      background: #38b6ff;
+      color: #05101a;
+      font-size: 10px;
+      font-weight: 900;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+    }
+
+    .sky-logo-text {
+      font-size: 14px;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: 1px;
+    }
+    .sky-logo-text span { color: #38b6ff; }
+
+    .pista-title {
+      font-size: 20px;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: #ffffff;
+      line-height: 1.1;
+    }
+
+    .pista-subtitle {
+      font-size: 11px;
+      color: #00ff88;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 3px;
+      margin-bottom: 14px;
+    }
+
+    .data-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 12px;
+    }
+
+    .data-label { color: #8a9ba8; font-weight: 700; }
+    .data-val { font-weight: 800; color: #ffffff; }
+
+    /* Cartellini Waypoints */
+    .waypoint {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      transform: translate(-50%, -40%) scale(0.8);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+    }
+
+    .waypoint.visible {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .wp-pin {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #00ff88;
+      box-shadow: 0 0 14px #00ff88;
+      border: 2px solid #ffffff;
+    }
+
+    .wp-pin.red { background: #ef4444; box-shadow: 0 0 14px #ef4444; }
+    .wp-pin.yellow { background: #ecc94b; box-shadow: 0 0 14px #ecc94b; }
+
+    .wp-box {
+      background: rgba(8, 22, 36, 0.95);
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="track-wrapper" id="trackWrapper">
+    <svg class="track-svg" viewBox="0 0 1000 900">
+      <!-- Linea di Partenza (Inizio in Alto) -->
+      <line x1="470" y1="50" x2="530" y2="50" class="start-finish-line" />
+
+      <!-- Sfondo Linea Grigia del Percorso (Scala ridotta 0.75) -->
+      <path class="path-bg" d="
+        M 500,50 
+        C 470,120 540,170 560,230 
+        C 580,290 380,340 330,400 
+        C 290,440 500,470 650,490 
+        C 760,520 730,580 650,620 
+        C 530,680 320,680 300,730 
+        C 280,770 400,780 580,780
+      " />
+
+      <!-- Salto 1 -->
+      <path class="path-jump" d="M 400,440 C 490,460 570,480 630,490" />
+
+      <!-- Salto 2 -->
+      <path class="path-jump" d="M 670,600 C 700,620 630,660 530,680" />
+
+      <!-- Bandiere (Pali Rossi e Blu) -->
+      <circle cx="480" cy="80" class="gate-flag gate-red" />
+      <circle cx="540" cy="90" class="gate-flag gate-blue" />
+      <circle cx="460" cy="150" class="gate-flag gate-blue" />
+      <circle cx="530" cy="170" class="gate-flag gate-red" />
+      <circle cx="500" cy="220" class="gate-flag gate-red" />
+      <circle cx="580" cy="250" class="gate-flag gate-blue" />
+      <circle cx="470" cy="320" class="gate-flag gate-blue" />
+      <circle cx="530" cy="340" class="gate-flag gate-red" />
+      <circle cx="310" cy="390" class="gate-flag gate-red" />
+      <circle cx="370" cy="420" class="gate-flag gate-blue" />
+      <circle cx="470" cy="460" class="gate-flag gate-blue" />
+      <circle cx="590" cy="480" class="gate-flag gate-red" />
+      <circle cx="680" cy="540" class="gate-flag gate-red" />
+      <circle cx="720" cy="580" class="gate-flag gate-blue" />
+      <circle cx="610" cy="640" class="gate-flag gate-blue" />
+      <circle cx="670" cy="660" class="gate-flag gate-red" />
+      <circle cx="340" cy="700" class="gate-flag gate-red" />
+      <circle cx="290" cy="740" class="gate-flag gate-blue" />
+      <circle cx="400" cy="780" class="gate-flag gate-blue" />
+      <circle cx="520" cy="780" class="gate-flag gate-red" />
+
+      <!-- Traccia Animata Verde Neon -->
+      <path class="path-active" id="activePath" d="
+        M 500,50 
+        C 470,120 540,170 560,230 
+        C 580,290 380,340 330,400 
+        C 290,440 500,470 650,490 
+        C 760,520 730,580 650,620 
+        C 530,680 320,680 300,730 
+        C 280,770 400,780 580,780
+      " />
+
+      <!-- Linea del Traguardo -->
+      <line x1="530" y1="795" x2="610" y2="765" class="start-finish-line" />
+    </svg>
+
+    <!-- Cartellini Waypoints proporzionati -->
+    <div class="waypoint" id="wpStart" style="top: 125px; left: 860px;">
+      <div class="wp-pin red"></div>
+      <div class="wp-box">🔴 START</div>
+    </div>
+
+    <div class="waypoint" id="wpJump1" style="top: 505px; left: 980px;">
+      <div class="wp-pin yellow"></div>
+      <div class="wp-box">🟨 JUMP #1</div>
+    </div>
+
+    <div class="waypoint" id="wpJump2" style="top: 665px; left: 1040px;">
+      <div class="wp-pin yellow"></div>
+      <div class="wp-box">🟨 JUMP #2</div>
+    </div>
+
+    <div class="waypoint" id="wpFinish" style="top: 845px; left: 1025px;">
+      <div class="wp-pin red"></div>
+      <div class="wp-box">🏁 FINISH</div>
+    </div>
+
+    <!-- Scheda Tecnica Pista Sky Winter Games -->
+    <div class="pista-card">
+      <div class="card-header-flex">
+        <span class="badge-tag">ALPINE SKIING</span>
+        <div class="sky-logo-text">SKY <span>WINTER GAMES</span></div>
+      </div>
+      <div class="pista-title" id="trackName">SKY DOWNHILL COURSE</div>
+      <div class="pista-subtitle">ANALISI PERCORSO DI GARA</div>
+
+      <div class="data-row"><span class="data-label">LUNGHEZZA:</span><span class="data-val">2.850 m</span></div>
+      <div class="data-row"><span class="data-label">DISLIVELLO:</span><span class="data-val">820 m</span></div>
+      <div class="data-row"><span class="data-label">PENDENZA MAX:</span><span class="data-val">62%</span></div>
+      <div class="data-row"><span class="data-label">SALTI CRITICI:</span><span class="data-val">2 SALTI TECNICI</span></div>
+      <div class="data-row"><span class="data-label">VELOCITÀ MAX:</span><span class="data-val">138 km/h</span></div>
+    </div>
+  </div>
+
+  <script>
+    const channel = new BroadcastChannel('sky_track_channel');
+    const path = document.getElementById('activePath');
+    const pathLength = path.getTotalLength();
+
+    path.style.strokeDasharray = pathLength;
+    path.style.strokeDashoffset = pathLength;
+
+    let animTimer = null;
+
+    function runTrackAnimation() {
+      let currentOffset = pathLength;
+      clearInterval(animTimer);
+
+      document.querySelectorAll('.waypoint').forEach(el => el.classList.remove('visible'));
+      document.getElementById('wpStart').classList.add('visible');
+
+      animTimer = setInterval(() => {
+        currentOffset -= 15;
+        if (currentOffset <= 0) {
+          currentOffset = 0;
+          clearInterval(animTimer);
+          document.getElementById('wpFinish').classList.add('visible');
+        }
+
+        path.style.strokeDashoffset = currentOffset;
+
+        const progress = 1 - (currentOffset / pathLength);
+        if (progress > 0.40) document.getElementById('wpJump1').classList.add('visible');
+        if (progress > 0.72) document.getElementById('wpJump2').classList.add('visible');
+      }, 30);
+    }
+
+    channel.onmessage = (event) => {
+      const wrapper = document.getElementById('trackWrapper');
+      if (event.data.visible) {
+        if (event.data.name) document.getElementById('trackName').innerText = event.data.name;
+        wrapper.classList.add('active');
+        setTimeout(runTrackAnimation, 300);
+      } else {
+        wrapper.classList.remove('active');
+        clearInterval(animTimer);
+      }
+    };
+  </script>
+</body>
+</html>
