@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Sky Winter Games - Small Live Timer</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      font-family: 'Montserrat', sans-serif;
+      background: transparent;
+      color: white;
+    }
+
+    /* Pillola Cronometro Piccola (Posizionata in Basso a Destra) */
+    .timer-pill {
+      position: absolute;
+      bottom: 40px;
+      right: 50px;
+      display: flex;
+      align-items: center;
+      background: rgba(8, 20, 36, 0.95);
+      backdrop-filter: blur(12px);
+      border: 2px solid rgba(56, 182, 255, 0.4);
+      border-radius: 12px;
+      padding: 8px 18px;
+      gap: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .timer-pill.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .timer-label {
+      font-size: 10px;
+      font-weight: 900;
+      color: #38b6ff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .timer-display {
+      font-size: 26px;
+      font-weight: 900;
+      color: #00ff88;
+      font-family: monospace;
+      letter-spacing: -1px;
+      text-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
+    }
+
+    .timer-status {
+      font-size: 9px;
+      font-weight: 900;
+      background: rgba(0, 255, 136, 0.15);
+      color: #00ff88;
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .timer-status.stopped {
+      background: rgba(255, 51, 68, 0.15);
+      color: #ff3344;
+      border-color: rgba(255, 51, 68, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="timer-pill" id="timerPill">
+    <div>
+      <div class="timer-label" id="timerTitle">TEMPO LIVE</div>
+      <div class="timer-display" id="timerText">00:00.0</div>
+    </div>
+    <div class="timer-status" id="timerBadge">LIVE</div>
+  </div>
+
+  <script>
+    const channel = new BroadcastChannel('sky_small_timer_channel');
+    const pill = document.getElementById('timerPill');
+    const textDisp = document.getElementById('timerText');
+    const titleDisp = document.getElementById('timerTitle');
+    const badgeDisp = document.getElementById('timerBadge');
+
+    let intervalId = null;
+    let startTime = 0;
+    let elapsedTime = 0;
+    let isRunning = false;
+
+    function updateDisplay(ms) {
+      const mins = Math.floor(ms / 60000);
+      const secs = Math.floor((ms % 60000) / 1000);
+      const tenths = Math.floor((ms % 1000) / 100);
+
+      const mStr = mins < 10 ? '0' + mins : mins;
+      const sStr = secs < 10 ? '0' + secs : secs;
+
+      textDisp.innerText = `${mStr}:${sStr}.${tenths}`;
+    }
+
+    channel.onmessage = (event) => {
+      const data = event.data;
+
+      if (data.action === 'show') {
+        pill.classList.add('active');
+        if (data.title) titleDisp.innerText = data.title;
+      } 
+      else if (data.action === 'hide') {
+        pill.classList.remove('active');
+      } 
+      else if (data.action === 'start') {
+        pill.classList.add('active');
+        if (!isRunning) {
+          isRunning = true;
+          startTime = Date.now() - elapsedTime;
+          badgeDisp.innerText = "LIVE";
+          badgeDisp.classList.remove('stopped');
+
+          clearInterval(intervalId);
+          intervalId = setInterval(() => {
+            elapsedTime = Date.now() - startTime;
+            updateDisplay(elapsedTime);
+          }, 50);
+        }
+      } 
+      else if (data.action === 'pause') {
+        if (isRunning) {
+          isRunning = false;
+          clearInterval(intervalId);
+          badgeDisp.innerText = "STOP";
+          badgeDisp.classList.add('stopped');
+        }
+      } 
+      else if (data.action === 'reset') {
+        isRunning = false;
+        clearInterval(intervalId);
+        elapsedTime = 0;
+        updateDisplay(0);
+        badgeDisp.innerText = "RESET";
+        badgeDisp.classList.remove('stopped');
+      }
+    };
+  </script>
+</body>
+</html>
