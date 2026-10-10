@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8"><title>Controllo sfida sci</title>
+<style>
+body{margin:0;padding:12px;background:#1b2427;color:#fff;font:15px Arial,sans-serif}
+h1{font-size:16px;margin:0 0 10px}
+.r{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+button{flex:1;padding:12px;font-size:16px;font-weight:bold;border:0;border-radius:6px;cursor:pointer;color:#04282b;background:#31c1c9}
+button.g{background:#c8e04a}button.x{background:#e26a5a;color:#fff}button.m{background:#51666b;color:#fff}
+input[type=text],input[type=number]{padding:7px;border-radius:5px;border:0;width:130px}
+input[type=range]{flex:1}
+#t{font-size:34px;font-variant-numeric:tabular-nums;text-align:center;width:100%}
+small{opacity:.65}
+</style></head><body>
+<h1>Controllo sfida</h1>
+<div id="t">0.0</div>
+<div class="r"><button class="g" id="go">Start</button><button class="m" id="pa">Pausa</button><button class="x" id="fi">Arrivo</button><button class="m" id="re">Reset</button></div>
+<div class="r"><label>Titolo <input type="text" id="ttl" value="SFIDA SULLA NEVE"></label>
+<label>Durata (s) <input type="number" id="dur" value="90" min="5" style="width:70px"></label></div>
+<div class="r"><label><input type="checkbox" id="man"> Posizione manuale</label><input type="range" id="pos" min="0" max="100" value="0" disabled></div>
+<small>Con la posizione manuale muovi tu il pallino sulla pista, il tempo continua a correre.</small>
+<script>
+const $=id=>document.getElementById(id), ch=(()=>{try{return new BroadcastChannel("sci")}catch(e){}})();
+let S={running:false,startedAt:0,base:0,duration:90,title:"SFIDA SULLA NEVE",manual:null,finished:false};
+try{Object.assign(S,JSON.parse(localStorage.getItem("sciState")||"{}"))}catch(e){}
+const el=()=>S.running?S.base+(Date.now()-S.startedAt)/1000:S.base;
+function send(){try{localStorage.setItem("sciState",JSON.stringify(S))}catch(e){} ch&&ch.postMessage(S)}
+$("go").onclick=()=>{if(!S.running){S.base=S.finished?0:S.base;S.finished=false;S.startedAt=Date.now();S.running=true;send()}};
+$("pa").onclick=()=>{if(S.running){S.base=el();S.running=false;send()}};
+$("fi").onclick=()=>{S.base=el();S.running=false;S.finished=true;S.manual=1;$("man").checked=true;$("pos").disabled=false;$("pos").value=100;send()};
+$("re").onclick=()=>{S.running=false;S.base=0;S.finished=false;S.manual=$("man").checked?0:null;$("pos").value=0;send()};
+$("ttl").oninput=e=>{S.title=e.target.value;send()};
+$("dur").oninput=e=>{S.duration=Math.max(5,+e.target.value||90);send()};
+$("man").onchange=e=>{$("pos").disabled=!e.target.checked;S.manual=e.target.checked?$("pos").value/100:null;send()};
+$("pos").oninput=e=>{S.manual=e.target.value/100;send()};
+$("ttl").value=S.title;$("dur").value=S.duration;
+setInterval(()=>{$("t").textContent=el().toFixed(1)},100);
+send();
+</script></body></html>
