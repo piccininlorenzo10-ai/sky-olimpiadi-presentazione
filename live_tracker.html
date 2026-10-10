@@ -17,7 +17,7 @@
       color: white;
     }
 
-    /* Card Identica allo Screenshot, posizionata in alto a destra */
+    /* Card Mappa in Alto a Destra */
     .tracker-card {
       position: absolute;
       top: 40px;
@@ -66,15 +66,14 @@
       letter-spacing: 0.8px;
     }
 
-    /* Box Mappa Percorso */
+    /* Box Mappa Percorso Reale */
     .track-box {
       position: relative;
       width: 100%;
-      height: 220px;
+      height: 230px;
       background: #04070f;
       border-radius: 12px;
       border: 1px solid rgba(255, 255, 255, 0.1);
-      margin-bottom: 16px;
       overflow: hidden;
     }
 
@@ -109,7 +108,7 @@
       filter: drop-shadow(0 0 10px #00ff88);
     }
 
-    /* Pallino Rosso Atleta Perfettamente Sulla Linea */
+    /* Pallino Rosso Atleta */
     .athlete-dot {
       position: absolute;
       width: 14px;
@@ -123,87 +122,111 @@
       z-index: 10;
     }
 
-    /* Box Cronometro In Basso */
-    .chrono-box {
-      background: #04070f;
+    /* Pillola Cronometro in Basso a Destra */
+    .bottom-right-chrono {
+      position: absolute;
+      bottom: 45px;
+      right: 50px;
+      background: #09101d;
       border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 12px;
-      text-align: center;
+      border: 2px solid rgba(56, 182, 255, 0.35);
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.85);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .bottom-right-chrono.active {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     .chrono-label {
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 800;
       color: #8a9ba8;
       text-transform: uppercase;
       letter-spacing: 1.2px;
-      margin-bottom: 4px;
     }
 
     .chrono-time {
-      font-size: 28px;
+      font-size: 26px;
       font-weight: 900;
       color: #00ff88;
       font-family: monospace;
       letter-spacing: -0.5px;
-      text-shadow: 0 0 12px rgba(0, 255, 136, 0.4);
-      margin-bottom: 8px;
+      text-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
     }
 
     .status-badge {
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 900;
-      padding: 5px;
-      border-radius: 6px;
+      padding: 4px 8px;
+      border-radius: 4px;
       text-transform: uppercase;
       background: rgba(0, 255, 136, 0.12);
       color: #00ff88;
       border: 1px solid rgba(0, 255, 136, 0.3);
-      letter-spacing: 1px;
+      letter-spacing: 0.8px;
     }
   </style>
 </head>
 <body>
 
+  <!-- Card Mappa Percorso in Alto a Destra -->
   <div class="tracker-card" id="trackerCard">
-    <!-- Header Atleta -->
     <div class="athlete-header">
       <div class="athlete-name" id="athName">MARCO ODERMATT</div>
       <div class="athlete-nation" id="athNat">SUI</div>
     </div>
 
-    <!-- Mappa Percorso -->
     <div class="track-box" id="trackBox">
-      <svg class="track-svg" viewBox="0 0 200 220" id="svgElem">
+      <svg class="track-svg" viewBox="0 0 200 230" id="svgElem">
         <!-- Linea Partenza -->
         <line x1="80" y1="20" x2="120" y2="20" class="gate-line" />
         
-        <!-- Tracciato Grigio -->
-        <path id="pathBg" class="path-bg" d="M 100,20 C 130,70 70,110 110,150 C 130,170 80,185 100,200" />
+        <!-- Tracciato Reale Speculare alla Pista 3D -->
+        <path id="pathBg" class="path-bg" d="
+          M 100,20 
+          C 60,60 140,90 120,110 
+          C 80,130 160,150 140,170 
+          C 100,190 70,200 130,205
+        " />
         
         <!-- Tracciato Verde Neon Animato -->
-        <path id="pathActive" class="path-active" d="M 100,20 C 130,70 70,110 110,150 C 130,170 80,185 100,200" />
+        <path id="pathActive" class="path-active" d="
+          M 100,20 
+          C 60,60 140,90 120,110 
+          C 80,130 160,150 140,170 
+          C 100,190 70,200 130,205
+        " />
         
         <!-- Linea Arrivo -->
-        <line x1="80" y1="200" x2="120" y2="200" class="gate-line" />
+        <line x1="110" y1="205" x2="150" y2="205" class="gate-line" />
       </svg>
 
       <!-- Pallino Atleta -->
       <div class="athlete-dot" id="athDot" style="top: 20px; left: 100px;"></div>
     </div>
+  </div>
 
-    <!-- Cronometro Live -->
-    <div class="chrono-box">
+  <!-- Cronometro In Basso a Destra -->
+  <div class="bottom-right-chrono" id="chronoWidget">
+    <div>
       <div class="chrono-label">TEMPO LIVE</div>
       <div class="chrono-time" id="chronoDisplay">00:00.00</div>
-      <div class="status-badge" id="statusBadge">IN DISCESA</div>
     </div>
+    <div class="status-badge" id="statusBadge">IN DISCESA</div>
   </div>
 
   <script>
     const channel = new BroadcastChannel('sky_live_tracker_channel');
     const card = document.getElementById('trackerCard');
+    const chronoWidget = document.getElementById('chronoWidget');
     const dot = document.getElementById('athDot');
     const pathBg = document.getElementById('pathBg');
     const pathActive = document.getElementById('pathActive');
@@ -219,14 +242,12 @@
     let startTime = 0;
 
     function updateDotPosition(progress) {
-      // Calcola la distanza esatta lungo la linea dell'SVG
       const currentLen = progress * totalLen;
       const point = pathBg.getPointAtLength(currentLen);
 
-      // Converti le coordinate SVG (200x220) nelle dimensioni reali del contenitore pixel
       const rect = trackBox.getBoundingClientRect();
       const scaleX = rect.width / 200;
-      const scaleY = rect.height / 220;
+      const scaleY = rect.height / 230;
 
       const posX = point.x * scaleX;
       const posY = point.y * scaleY;
@@ -234,7 +255,6 @@
       dot.style.left = posX + 'px';
       dot.style.top = posY + 'px';
 
-      // Aggiorna il tratto verde che si riempie
       pathActive.style.strokeDashoffset = totalLen * (1 - progress);
     }
 
@@ -244,10 +264,11 @@
         document.getElementById('athName').innerText = data.name || 'MARCO ODERMATT';
         document.getElementById('athNat').innerText = data.nation || 'SUI';
         card.classList.add('active');
+        chronoWidget.classList.add('active');
         
         clearInterval(animTimer);
         startTime = Date.now();
-        const duration = 55000; // 55 secondi di discesa
+        const duration = 55000;
 
         animTimer = setInterval(() => {
           const elapsed = Date.now() - startTime;
@@ -262,7 +283,6 @@
             statusBd.style.background = "rgba(56, 182, 255, 0.15)";
           }
 
-          // Formattazione tempo mm:ss.ms
           const mins = Math.floor(elapsed / 60000);
           const secs = Math.floor((elapsed % 60000) / 1000);
           const cent = Math.floor((elapsed % 1000) / 10);
@@ -271,13 +291,13 @@
             (secs < 10 ? "0" + secs : secs) + "." + 
             (cent < 10 ? "0" + cent : cent);
 
-          // Calcolo e spostamento del pallino perfettamente lungo il percorso
           updateDotPosition(progress);
 
         }, 30);
 
       } else if (data.action === 'hide') {
         card.classList.remove('active');
+        chronoWidget.classList.remove('active');
         clearInterval(animTimer);
       }
     };
