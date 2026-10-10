@@ -1,309 +1,58 @@
 <!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="UTF-8">
-  <title>Sky Winter Games - Live Athlete Tracker</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap');
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      width: 1920px;
-      height: 1080px;
-      overflow: hidden;
-      font-family: 'Montserrat', sans-serif;
-      background: transparent;
-      color: white;
-    }
-
-    /* 1. Card Mappa e Atleta in Alto a Destra */
-    .tracker-card {
-      position: absolute;
-      top: 40px;
-      right: 50px;
-      width: 320px;
-      background: #09101d;
-      border-radius: 18px;
-      border: 2px solid rgba(56, 182, 255, 0.35);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
-      padding: 18px;
-      opacity: 0;
-      transform: translateY(-20px);
-      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .tracker-card.active {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* Header Atleta */
-    .athlete-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-      padding-bottom: 8px;
-    }
-
-    .athlete-name {
-      font-size: 15px;
-      font-weight: 900;
-      text-transform: uppercase;
-      color: #ffffff;
-      letter-spacing: 0.5px;
-    }
-
-    .athlete-nation {
-      background: #38b6ff;
-      color: #040d18;
-      font-size: 11px;
-      font-weight: 900;
-      padding: 3px 8px;
-      border-radius: 5px;
-      letter-spacing: 0.8px;
-    }
-
-    /* Box Mappa Percorso */
-    .track-box {
-      position: relative;
-      width: 100%;
-      height: 230px;
-      background: #04070f;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      overflow: hidden;
-    }
-
-    svg.track-svg {
-      width: 100%;
-      height: 100%;
-    }
-
-    /* Linee Rosse Partenza e Arrivo */
-    .gate-line {
-      stroke: #ff2233;
-      stroke-width: 4;
-      stroke-linecap: round;
-    }
-
-    /* Linea Grigia di Sfondo */
-    .path-bg {
-      fill: none;
-      stroke: #334155;
-      stroke-width: 8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    /* Linea Verde Neon Percorsa */
-    .path-active {
-      fill: none;
-      stroke: #00ff88;
-      stroke-width: 8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      filter: drop-shadow(0 0 10px #00ff88);
-    }
-
-    /* Pallino Rosso Atleta */
-    .athlete-dot {
-      position: absolute;
-      width: 14px;
-      height: 14px;
-      background: #ff2233;
-      border: 2px solid #ffffff;
-      border-radius: 50%;
-      box-shadow: 0 0 12px #ff2233;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      z-index: 10;
-    }
-
-    /* 2. PILLOLA CRONOMETRO IN BASSO A DESTRA */
-    .bottom-right-chrono {
-      position: absolute;
-      bottom: 45px;
-      right: 50px;
-      background: #09101d;
-      border-radius: 14px;
-      border: 2px solid rgba(56, 182, 255, 0.4);
-      padding: 12px 22px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9);
-      opacity: 0;
-      transform: translateY(20px);
-      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .bottom-right-chrono.active {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .chrono-label {
-      font-size: 10px;
-      font-weight: 800;
-      color: #8a9ba8;
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-    }
-
-    .chrono-time {
-      font-size: 32px;
-      font-weight: 900;
-      color: #00ff88;
-      font-family: monospace;
-      letter-spacing: -0.5px;
-      text-shadow: 0 0 14px rgba(0, 255, 136, 0.5);
-      line-height: 1;
-      margin-top: 2px;
-    }
-
-    .status-badge {
-      font-size: 10px;
-      font-weight: 900;
-      padding: 6px 12px;
-      border-radius: 6px;
-      text-transform: uppercase;
-      background: rgba(0, 255, 136, 0.15);
-      color: #00ff88;
-      border: 1px solid rgba(0, 255, 136, 0.35);
-      letter-spacing: 1px;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- Mappa del Percorso e Nome Atleta (In Alto a Destra) -->
-  <div class="tracker-card" id="trackerCard">
-    <div class="athlete-header">
-      <div class="athlete-name" id="athName">MARCO ODERMATT</div>
-      <div class="athlete-nation" id="athNat">SUI</div>
-    </div>
-
-    <div class="track-box" id="trackBox">
-      <svg class="track-svg" viewBox="0 0 200 230" id="svgElem">
-        <!-- Linea Partenza -->
-        <line x1="80" y1="20" x2="120" y2="20" class="gate-line" />
-        
-        <!-- Tracciato Reale -->
-        <path id="pathBg" class="path-bg" d="
-          M 100,20 
-          C 60,60 140,90 120,110 
-          C 80,130 160,150 140,170 
-          C 100,190 70,200 130,205
-        " />
-        
-        <!-- Tracciato Verde Neon Animato -->
-        <path id="pathActive" class="path-active" d="
-          M 100,20 
-          C 60,60 140,90 120,110 
-          C 80,130 160,150 140,170 
-          C 100,190 70,200 130,205
-        " />
-        
-        <!-- Linea Arrivo -->
-        <line x1="110" y1="205" x2="150" y2="205" class="gate-line" />
-      </svg>
-
-      <!-- Pallino Atleta -->
-      <div class="athlete-dot" id="athDot" style="top: 20px; left: 100px;"></div>
-    </div>
-  </div>
-
-  <!-- Cronometro Tempo Live (In Basso a Destra) -->
-  <div class="bottom-right-chrono" id="chronoWidget">
-    <div>
-      <div class="chrono-label">TEMPO LIVE</div>
-      <div class="chrono-time" id="chronoDisplay">00:00.00</div>
-    </div>
-    <div class="status-badge" id="statusBadge">IN DISCESA</div>
-  </div>
-
-  <script>
-    const channel = new BroadcastChannel('sky_live_tracker_channel');
-    const card = document.getElementById('trackerCard');
-    const chronoWidget = document.getElementById('chronoWidget');
-    const dot = document.getElementById('athDot');
-    const pathBg = document.getElementById('pathBg');
-    const pathActive = document.getElementById('pathActive');
-    const chronoDisp = document.getElementById('chronoDisplay');
-    const statusBd = document.getElementById('statusBadge');
-    const trackBox = document.getElementById('trackBox');
-
-    const totalLen = pathBg.getTotalLength();
-    pathActive.style.strokeDasharray = totalLen;
-    pathActive.style.strokeDashoffset = totalLen;
-
-    let animTimer = null;
-    let startTime = 0;
-
-    function updateDotPosition(progress) {
-      const currentLen = progress * totalLen;
-      const point = pathBg.getPointAtLength(currentLen);
-
-      const rect = trackBox.getBoundingClientRect();
-      const scaleX = rect.width / 200;
-      const scaleY = rect.height / 230;
-
-      const posX = point.x * scaleX;
-      const posY = point.y * scaleY;
-
-      dot.style.left = posX + 'px';
-      dot.style.top = posY + 'px';
-
-      pathActive.style.strokeDashoffset = totalLen * (1 - progress);
-    }
-
-    channel.onmessage = (event) => {
-      const data = event.data;
-      if (data.action === 'start') {
-        document.getElementById('athName').innerText = data.name || 'MARCO ODERMATT';
-        document.getElementById('athNat').innerText = data.nation || 'SUI';
-        card.classList.add('active');
-        chronoWidget.classList.add('active');
-        
-        clearInterval(animTimer);
-        startTime = Date.now();
-        const duration = 55000;
-
-        animTimer = setInterval(() => {
-          const elapsed = Date.now() - startTime;
-          let progress = elapsed / duration;
-
-          if (progress >= 1) {
-            progress = 1;
-            clearInterval(animTimer);
-            statusBd.innerText = "ARRIVO";
-            statusBd.style.color = "#38b6ff";
-            statusBd.style.borderColor = "#38b6ff";
-            statusBd.style.background = "rgba(56, 182, 255, 0.15)";
-          }
-
-          const mins = Math.floor(elapsed / 60000);
-          const secs = Math.floor((elapsed % 60000) / 1000);
-          const cent = Math.floor((elapsed % 1000) / 10);
-          
-          chronoDisp.innerText = 
-            (mins < 10 ? "0" + mins : mins) + ":" + 
-            (secs < 10 ? "0" + secs : secs) + "." + 
-            (cent < 10 ? "0" + cent : cent);
-
-          updateDotPosition(progress);
-
-        }, 30);
-
-      } else if (data.action === 'hide') {
-        card.classList.remove('active');
-        chronoWidget.classList.remove('active');
-        clearInterval(animTimer);
-      }
-    };
-  </script>
-</body>
-</html>
+<html lang="it"><head><meta charset="utf-8"><title>Overlay sci v2</title>
+<style>
+:root{--teal:#0f5c63;--teal-d:#0a4349;--accent:#31c1c9;--lime:#c8e04a}
+html,body{margin:0;height:100%;background:transparent;overflow:hidden;font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif}
+#tag{position:fixed;top:24px;left:24px;padding:6px 16px;border-radius:6px;background:rgba(60,75,80,.85);color:#e8eef0;font-size:26px;letter-spacing:.04em;border:1px solid rgba(255,255,255,.35)}
+#course{position:fixed;right:60px;top:90px;width:230px;height:480px}
+#course svg{width:100%;height:100%;overflow:visible}
+.split{stroke:rgba(255,255,255,.75);stroke-width:1.5;stroke-dasharray:5 5}
+.track{fill:none;stroke:#cfd8da;stroke-width:7;stroke-linecap:round}
+.done{fill:none;stroke:var(--accent);stroke-width:7;stroke-linecap:round}
+.badge{fill:var(--teal)}.dot{fill:#fff;stroke:#0f5c63;stroke-width:3}
+#timer{position:fixed;right:50px;bottom:36px;display:flex;height:54px;border-radius:8px;overflow:hidden;background:var(--teal-d);box-shadow:0 2px 8px rgba(0,0,0,.35)}
+#time{min-width:150px;padding:0 22px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:44px;font-weight:600;font-variant-numeric:tabular-nums;background:var(--teal)}
+#logo{width:150px;display:flex;align-items:center;justify-content:center;color:#dfeef0;font-size:22px;letter-spacing:.06em}
+#timer::after{content:"";width:8px;background:var(--lime)}
+#timer.fin #time{color:var(--lime)}
+#pop{position:fixed;right:50px;bottom:104px;padding:6px 18px;border-radius:8px;background:rgba(10,67,73,.95);color:#fff;font-size:28px;opacity:0;transform:translateY(8px);transition:.25s;border-left:6px solid var(--lime)}
+#pop.on{opacity:1;transform:none}
+</style></head><body>
+<div id="tag">SFIDA SULLA NEVE</div>
+<div id="course"><svg viewBox="0 0 230 480">
+<g id="splits"></g><path id="track" class="track"/><path id="done" class="done"/>
+<rect class="badge" x="2" y="0" width="44" height="34" rx="6"/>
+<path d="M24 8 L36 18 L33 18 L33 27 L15 27 L15 18 L12 18 Z" fill="none" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
+<rect class="badge" x="120" y="446" width="44" height="34" rx="6"/>
+<path d="M130 458 L154 458 L146 470" fill="none" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
+<circle id="dot" class="dot" r="12"/></svg></div>
+<div id="pop"></div>
+<div id="timer"><div id="time">0.0</div><div id="logo">GARA</div></div>
+<script>
+const D="M24 34 C 40 70, 20 100, 32 140 C 44 180, 60 190, 70 230 C 80 270, 120 270, 135 300 C 150 335, 125 360, 128 400 C 130 425, 140 435, 142 446";
+const $=id=>document.getElementById(id), track=$("track"), done=$("done"), dot=$("dot");
+track.setAttribute("d",D); done.setAttribute("d",D);
+const L=track.getTotalLength(); done.style.strokeDasharray=L;
+const SPL=[.15,.33,.52,.72,.9];
+SPL.forEach(f=>{const p=track.getPointAtLength(L*f),l=document.createElementNS("http://www.w3.org/2000/svg","line");
+ l.setAttribute("class","split");l.setAttribute("x1",p.x);l.setAttribute("x2",230);l.setAttribute("y1",p.y);l.setAttribute("y2",p.y);$("splits").appendChild(l)});
+let S={running:false,startedAt:0,base:0,duration:90,title:"SFIDA SULLA NEVE",manual:null,finished:false};
+try{Object.assign(S,JSON.parse(localStorage.getItem("sciState")||"{}"))}catch(e){}
+const fmt=s=>{if(s<60)return s.toFixed(1);const m=Math.floor(s/60);return m+":"+(s-m*60).toFixed(1).padStart(4,"0")};
+const el=()=>S.running?S.base+(Date.now()-S.startedAt)/1000:S.base;
+let shown=new Set(),popT;
+function pop(t){const p=$("pop");p.textContent=t;p.classList.add("on");clearTimeout(popT);popT=setTimeout(()=>p.classList.remove("on"),3500)}
+function frame(){
+ const e=el(), f=S.manual!=null?S.manual:Math.min(e/S.duration,1);
+ const p=track.getPointAtLength(L*f); dot.setAttribute("cx",p.x);dot.setAttribute("cy",p.y);
+ done.style.strokeDashoffset=L*(1-f); $("time").textContent=fmt(e); $("tag").textContent=S.title;
+ $("timer").classList.toggle("fin",!!S.finished);
+ SPL.forEach((s,i)=>{if(f>=s&&!shown.has(i)&&S.running){shown.add(i);pop("Settore "+(i+1)+"  "+fmt(e))}});
+ if(f<.01)shown.clear();
+ requestAnimationFrame(frame)}
+function load(s){S=Object.assign(S,s)}
+try{new BroadcastChannel("sci").onmessage=e=>load(e.data)}catch(e){}
+addEventListener("storage",e=>{if(e.key==="sciState"&&e.newValue)load(JSON.parse(e.newValue))});
+setInterval(()=>{try{const s=localStorage.getItem("sciState");if(s)load(JSON.parse(s))}catch(e){}},500);
+frame();
+</script></body></html>
