@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Regia Classifica Sci - Sky Winter Games</title>
+  <title>Regia Classifica Finale Grande - Sky Winter Games</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap');
 
@@ -10,13 +10,13 @@
 
     body {
       font-family: 'Montserrat', sans-serif;
-      background: #0f172a;
+      background: #0b1329;
       color: white;
       padding: 30px;
     }
 
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: 0 auto;
     }
 
@@ -28,40 +28,40 @@
     }
 
     .card {
-      background: #1e293b;
-      border-radius: 12px;
-      padding: 20px;
+      background: #172442;
+      border-radius: 14px;
+      padding: 24px;
       border: 1px solid rgba(255, 255, 255, 0.1);
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
 
     label {
       display: block;
       font-size: 12px;
       font-weight: 800;
-      color: #94a3b8;
+      color: #8a9ba8;
       margin-bottom: 6px;
       text-transform: uppercase;
     }
 
     input {
       width: 100%;
-      padding: 10px;
-      background: #0f172a;
-      border: 1px solid #334155;
-      border-radius: 6px;
+      padding: 12px;
+      background: #0b1329;
+      border: 1px solid #2d3f66;
+      border-radius: 8px;
       color: white;
       font-weight: 700;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
 
     .flex-row {
       display: flex;
-      gap: 10px;
+      gap: 12px;
     }
 
     button {
-      padding: 12px 20px;
+      padding: 14px 24px;
       border-radius: 8px;
       border: none;
       font-weight: 900;
@@ -70,27 +70,27 @@
       transition: all 0.2s ease;
     }
 
-    .btn-add { background: #38b6ff; color: #040d18; }
-    .btn-show { background: #00ff88; color: #040d18; }
-    .btn-hide { background: #ff3344; color: white; }
+    .btn-add { background: #38b6ff; color: #040d18; width: 100%; }
+    .btn-show { background: #00ff88; color: #040d18; flex: 2; font-size: 16px; }
+    .btn-hide { background: #ff3344; color: white; flex: 1; font-size: 16px; }
 
     .btn-group {
       display: flex;
-      gap: 12px;
-      margin-top: 10px;
+      gap: 14px;
+      margin-top: 15px;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 10px;
+      margin-top: 15px;
     }
 
     th, td {
-      padding: 10px;
+      padding: 12px;
       text-align: left;
-      border-bottom: 1px solid #334155;
-      font-size: 13px;
+      border-bottom: 1px solid #2d3f66;
+      font-size: 14px;
     }
 
     th { color: #38b6ff; }
@@ -98,44 +98,45 @@
     .btn-del {
       background: rgba(255, 51, 68, 0.2);
       color: #ff3344;
-      padding: 4px 8px;
-      font-size: 11px;
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 6px;
     }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <h1>🏆 PANNELLO REGIA - CLASSIFICA LIVE SCI</h1>
+    <h1>🏆 REGIA CLASSIFICA FINALE GRANDE</h1>
 
     <div class="card">
-      <label>Titolo Gara / Categoria:</label>
-      <input type="text" id="raceTitle" value="CLASSIFICA FIS DOWNHILL - CORTINA 2026">
+      <label>Titolo della Gara:</label>
+      <input type="text" id="raceTitle" value="SKI DOWNHILL - CLASSIFICA FINALE CORTINA 2026">
 
-      <h3 style="color:#00ff88; margin: 15px 0 10px 0; font-size:16px;">AGGIUNGI NUOVO ATLETA</h3>
+      <h3 style="color:#00ff88; margin: 15px 0 12px 0; font-size:16px;">INSERISCI ATLETA IN CLASSIFICA</h3>
       <div class="flex-row">
         <div style="flex:2;">
-          <label>Nome Atleta:</label>
-          <input type="text" id="athName" placeholder="Es. MARCO ODERMATT">
+          <label>Atleta:</label>
+          <input type="text" id="athName" placeholder="MARCO ODERMATT">
         </div>
         <div style="flex:1;">
           <label>Nazione:</label>
           <input type="text" id="athNat" placeholder="SUI">
         </div>
         <div style="flex:1.5;">
-          <label>Tempo:</label>
+          <label>Tempo Finale:</label>
           <input type="text" id="athTime" placeholder="1:42.15">
         </div>
         <div style="flex:1;">
           <label>Distacco:</label>
-          <input type="text" id="athDiff" placeholder="LEADER / +0.45">
+          <input type="text" id="athDiff" placeholder="LEADER / +0.35">
         </div>
       </div>
-      <button class="btn-add" onclick="addAthlete()">➕ AGGIUNGI ATLETA</button>
+      <button class="btn-add" onclick="addAthlete()">➕ AGGIUNGI ALLA CLASSIFICA</button>
     </div>
 
     <div class="card">
-      <h3>CLASSIFICA CORRENTE</h3>
+      <h3>POSIZIONI IN REGIA</h3>
       <table>
         <thead>
           <tr>
@@ -147,14 +148,12 @@
             <th>Azione</th>
           </tr>
         </thead>
-        <tbody id="athleteTableBody">
-          <!-- Righe inserite dinamiche -->
-        </tbody>
+        <tbody id="athleteTableBody"></tbody>
       </table>
 
-      <div class="btn-group" style="margin-top:20px;">
-        <button class="btn-show" onclick="showLeaderboard()">🟢 MOSTRA CLASSIFICA IN OBS</button>
-        <button class="btn-hide" onclick="hideLeaderboard()">🔴 NASCONDI CLASSIFICA</button>
+      <div class="btn-group">
+        <button class="btn-show" onclick="showLeaderboard()">🟢 MOSTRA CLASSIFICA FINALE IN OBS</button>
+        <button class="btn-hide" onclick="hideLeaderboard()">🔴 NASCONDI</button>
       </div>
     </div>
   </div>
@@ -165,7 +164,9 @@
     let athletes = [
       { name: 'MARCO ODERMATT', nation: 'SUI', time: '1:42.15', diff: 'LEADER' },
       { name: 'DOMINIK PARIS', nation: 'ITA', time: '1:42.42', diff: '+0.27' },
-      { name: 'ALEKSANDER AAMODT KILDE', nation: 'NOR', time: '1:42.60', diff: '+0.45' }
+      { name: 'ALEKSANDER AAMODT KILDE', nation: 'NOR', time: '1:42.60', diff: '+0.45' },
+      { name: 'VINCENT KRIECHMAYR', nation: 'AUT', time: '1:42.88', diff: '+0.73' },
+      { name: 'BRYCE BENNETT', nation: 'USA', time: '1:43.02', diff: '+0.87' }
     ];
 
     function renderTable() {
@@ -179,18 +180,17 @@
           <td>${ath.nation}</td>
           <td>${ath.time}</td>
           <td>${ath.diff}</td>
-          <td><button class="btn-del" onclick="deleteAthlete(${idx})">Elimina</button></td>
+          <td><button class="btn-del" onclick="deleteAthlete(${idx})">Rimuovi</button></td>
         `;
         tbody.appendChild(row);
       });
-      // Invia aggiornamento live se è aperta in OBS
       lbChannel.postMessage({ action: 'update', athletes: athletes });
     }
 
     function addAthlete() {
       const name = document.getElementById('athName').value;
       const nation = document.getElementById('athNat').value || 'ITA';
-      const time = document.getElementById('athTime').value || '0:00.00';
+      const time = document.getElementById('athTime').value || '1:42.00';
       const diff = document.getElementById('athDiff').value || 'LEADER';
 
       if (!name) {
@@ -223,7 +223,6 @@
       lbChannel.postMessage({ action: 'hide' });
     }
 
-    // Inizializza tabella
     renderTable();
   </script>
 </body>
