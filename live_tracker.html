@@ -1,15 +1,20 @@
 <!DOCTYPE html>
-<html lang="it"><head><meta charset="utf-8"><title>Overlay sci v2</title>
+<html lang="it"><head><meta charset="utf-8"><title>Overlay sci v3</title>
 <style>
 :root{--teal:#0f5c63;--teal-d:#0a4349;--accent:#31c1c9;--lime:#c8e04a}
 html,body{margin:0;height:100%;background:transparent;overflow:hidden;font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif}
 #tag{position:fixed;top:24px;left:24px;padding:6px 16px;border-radius:6px;background:rgba(60,75,80,.85);color:#e8eef0;font-size:26px;letter-spacing:.04em;border:1px solid rgba(255,255,255,.35)}
-#course{position:fixed;right:60px;top:90px;width:230px;height:480px}
+#course{position:fixed;right:50px;top:30px;width:263px;height:720px}
 #course svg{width:100%;height:100%;overflow:visible}
-.split{stroke:rgba(255,255,255,.75);stroke-width:1.5;stroke-dasharray:5 5}
-.track{fill:none;stroke:#cfd8da;stroke-width:7;stroke-linecap:round}
-.done{fill:none;stroke:var(--accent);stroke-width:7;stroke-linecap:round}
+.tick{stroke:rgba(255,255,255,.75);stroke-width:1.5;stroke-dasharray:5 5}
+.track{fill:none;stroke:#cfd8da;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+.jump{fill:none;stroke:#cfd8da;stroke-width:7;stroke-dasharray:9 9}
+.done{fill:none;stroke:var(--accent);stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+.full{fill:none;stroke:none}
+.gate{fill:rgba(255,255,255,.15);stroke:#fff;stroke-width:2.5}
 .badge{fill:var(--teal)}.dot{fill:#fff;stroke:#0f5c63;stroke-width:3}
+.fin{stroke:var(--lime);stroke-width:5;stroke-linecap:round}
+.jl{fill:#fff;font-size:15px;font-weight:700;paint-order:stroke;stroke:rgba(10,67,73,.9);stroke-width:4px}
 #timer{position:fixed;right:50px;bottom:36px;display:flex;height:54px;border-radius:8px;overflow:hidden;background:var(--teal-d);box-shadow:0 2px 8px rgba(0,0,0,.35)}
 #time{min-width:150px;padding:0 22px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:44px;font-weight:600;font-variant-numeric:tabular-nums;background:var(--teal)}
 #logo{width:150px;display:flex;align-items:center;justify-content:center;color:#dfeef0;font-size:22px;letter-spacing:.06em}
@@ -19,23 +24,38 @@ html,body{margin:0;height:100%;background:transparent;overflow:hidden;font-famil
 #pop.on{opacity:1;transform:none}
 </style></head><body>
 <div id="tag">SFIDA SULLA NEVE</div>
-<div id="course"><svg viewBox="0 0 230 480">
-<g id="splits"></g><path id="track" class="track"/><path id="done" class="done"/>
-<rect class="badge" x="2" y="0" width="44" height="34" rx="6"/>
-<path d="M24 8 L36 18 L33 18 L33 27 L15 27 L15 18 L12 18 Z" fill="none" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
-<rect class="badge" x="120" y="446" width="44" height="34" rx="6"/>
-<path d="M130 458 L154 458 L146 470" fill="none" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
-<circle id="dot" class="dot" r="12"/></svg></div>
+<div id="course"><svg viewBox="0 0 263 720">
+<g id="gates"></g><g id="ticks"></g><g id="pieces"></g><path id="track" class="full"/><path id="done" class="done"/>
+<line id="fin" class="fin"/>
+<g id="bs"><rect class="badge" width="44" height="34" rx="6"/><path d="M22 7 L34 17 L31 17 L31 27 L13 27 L13 17 L10 17 Z" fill="none" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/></g>
+<g id="bf"><rect class="badge" width="44" height="34" rx="6"/><path d="M10 12 L34 12 L26 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/></g>
+<g id="jl"></g><circle id="dot" class="dot" r="12"/></svg></div>
 <div id="pop"></div>
 <div id="timer"><div id="time">0.0</div><div id="logo">GARA</div></div>
 <script>
-const D="M24 34 C 40 70, 20 100, 32 140 C 44 180, 60 190, 70 230 C 80 270, 120 270, 135 300 C 150 335, 125 360, 128 400 C 130 425, 140 435, 142 446";
-const $=id=>document.getElementById(id), track=$("track"), done=$("done"), dot=$("dot");
-track.setAttribute("d",D); done.setAttribute("d",D);
-const L=track.getTotalLength(); done.style.strokeDasharray=L;
-const SPL=[.15,.33,.52,.72,.9];
-SPL.forEach(f=>{const p=track.getPointAtLength(L*f),l=document.createElementNS("http://www.w3.org/2000/svg","line");
- l.setAttribute("class","split");l.setAttribute("x1",p.x);l.setAttribute("x2",230);l.setAttribute("y1",p.y);l.setAttribute("y2",p.y);$("splits").appendChild(l)});
+const N={"pieces": [[false, [[104.0, 54.6], [96.4, 82.6], [99.0, 121.1], [107.0, 158.6], [120.7, 189.1], [144.6, 211.4], [159.6, 230.8], [158.6, 253.5], [145.5, 275.6], [121.6, 299.9], [93.0, 323.8], [62.6, 350.0], [43.6, 375.8], [40.0, 398.6], [51.9, 418.4], [72.6, 431.5], [85.0, 436.3]]], [true, [[85.0, 436.3], [112.2, 447.2], [141.1, 456.5], [169.7, 467.0], [189.6, 476.9]]], [false, [[189.6, 476.9], [205.0, 483.6], [214.5, 499.3], [211.9, 519.3], [194.8, 544.3], [174.3, 563.0], [153.7, 576.9], [127.8, 586.2]]], [true, [[127.8, 586.2], [105.5, 596.7], [89.0, 610.6]]], [false, [[89.0, 610.6], [79.1, 623.0], [76.3, 639.1], [80.6, 652.0], [89.3, 661.1], [102.6, 665.0], [128.4, 666.9], [158.2, 667.8], [187.8, 671.1], [208.0, 676.8]]]], "gates": [[57.1, 40.0], [153.6, 41.9], [151.1, 162.8], [78.2, 183.3], [81.6, 276.9], [151.0, 313.7], [90.3, 412.9], [193.0, 444.3], [61.5, 457.0], [164.1, 501.7], [148.9, 539.9], [200.8, 588.3], [123.7, 626.3], [41.8, 648.8]], "finish": [[213.9, 680.0], [223.0, 665.4]], "w": 263, "h": 720};
+const $=id=>document.getElementById(id),NS="http://www.w3.org/2000/svg",done=$("done"),dot=$("dot"),track=$("track");
+function seg(P,move){let d=move?`M${P[0][0]} ${P[0][1]}`:"";
+ for(let i=0;i<P.length-1;i++){const p0=P[i-1]||P[i],p1=P[i],p2=P[i+1],p3=P[i+2]||p2;
+  const c1=[p1[0]+(p2[0]-p0[0])/6,p1[1]+(p2[1]-p0[1])/6],c2=[p2[0]-(p3[0]-p1[0])/6,p2[1]-(p3[1]-p1[1])/6];
+  d+=`C${c1} ${c2} ${p2}`}return d}
+function mk(tag,at,par){const e=document.createElementNS(NS,tag);for(const k in at)e.setAttribute(k,at[k]);par.appendChild(e);return e}
+let D="",lens=[],jumpNo=0;
+N.pieces.forEach(([jump,pts],i)=>{D+=seg(pts,i===0);
+ const p=mk("path",{d:seg(pts,true),class:jump?"jump":"track"},$("pieces"));lens.push([jump,p.getTotalLength()])});
+track.setAttribute("d",D);done.setAttribute("d",D);
+const L=track.getTotalLength();done.style.strokeDasharray=L;done.style.strokeDashoffset=L;
+N.gates.forEach(([x,y])=>mk("circle",{cx:x,cy:y,r:6,class:"gate"},$("gates")));
+const sum=lens.reduce((a,b)=>a+b[1],0);let acc=0;const EV=[];
+lens.forEach(([jump,len])=>{const a=acc/sum;acc+=len;const b=acc/sum;
+ if(jump){jumpNo++;const A=track.getPointAtLength(L*a),B=track.getPointAtLength(L*b);
+  [A,B].forEach(p=>mk("line",{class:"tick",x1:p.x-20,x2:N.w,y1:p.y,y2:p.y},$("ticks")));
+  const t=mk("text",{class:"jl",x:A.x+16,y:A.y-8},$("jl"));t.textContent="SALTO "+jumpNo;
+  EV.push({f:a,t:"Salto "+jumpNo});EV.push({f:b,t:"Atterrato dal salto "+jumpNo})}});
+const s0=N.pieces[0][1][0],[f0,f1]=N.finish;
+$("bs").setAttribute("transform",`translate(${s0[0]-22},${s0[1]-40})`);
+for(const [k,v] of Object.entries({x1:f0[0],y1:f0[1],x2:f1[0],y2:f1[1]}))$("fin").setAttribute(k,v);
+$("bf").setAttribute("transform",`translate(${f0[0]-22},${f0[1]+8})`);
 let S={running:false,startedAt:0,base:0,duration:90,title:"SFIDA SULLA NEVE",manual:null,finished:false};
 try{Object.assign(S,JSON.parse(localStorage.getItem("sciState")||"{}"))}catch(e){}
 const fmt=s=>{if(s<60)return s.toFixed(1);const m=Math.floor(s/60);return m+":"+(s-m*60).toFixed(1).padStart(4,"0")};
@@ -43,11 +63,11 @@ const el=()=>S.running?S.base+(Date.now()-S.startedAt)/1000:S.base;
 let shown=new Set(),popT;
 function pop(t){const p=$("pop");p.textContent=t;p.classList.add("on");clearTimeout(popT);popT=setTimeout(()=>p.classList.remove("on"),3500)}
 function frame(){
- const e=el(), f=S.manual!=null?S.manual:Math.min(e/S.duration,1);
- const p=track.getPointAtLength(L*f); dot.setAttribute("cx",p.x);dot.setAttribute("cy",p.y);
- done.style.strokeDashoffset=L*(1-f); $("time").textContent=fmt(e); $("tag").textContent=S.title;
+ const e=el(),f=S.manual!=null?S.manual:Math.min(e/S.duration,1);
+ const p=track.getPointAtLength(L*f);dot.setAttribute("cx",p.x);dot.setAttribute("cy",p.y);
+ done.style.strokeDashoffset=L*(1-f);$("time").textContent=fmt(e);$("tag").textContent=S.title;
  $("timer").classList.toggle("fin",!!S.finished);
- SPL.forEach((s,i)=>{if(f>=s&&!shown.has(i)&&S.running){shown.add(i);pop("Settore "+(i+1)+"  "+fmt(e))}});
+ EV.forEach((v,i)=>{if(f>=v.f&&!shown.has(i)&&S.running){shown.add(i);pop(v.t+"  "+fmt(e))}});
  if(f<.01)shown.clear();
  requestAnimationFrame(frame)}
 function load(s){S=Object.assign(S,s)}
