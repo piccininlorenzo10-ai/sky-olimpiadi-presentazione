@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Sky Winter Games - Live Athlete Tracker</title>
+  <title>Sky Winter Games - Olympic Live Tracker</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap');
 
@@ -17,262 +17,267 @@
       color: white;
     }
 
-    /* Box in alto a destra, verticale e pulito */
-    .tracker-container {
+    /* Contenitore Principale Overlay */
+    .olympic-tracker-wrapper {
       position: absolute;
-      top: 40px;
-      right: 50px;
-      width: 220px;
-      background: linear-gradient(135deg, rgba(8, 20, 36, 0.96) 0%, rgba(3, 10, 20, 0.99) 100%);
-      backdrop-filter: blur(14px);
-      border-radius: 14px;
-      border: 1px solid rgba(56, 182, 255, 0.35);
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.85);
-      padding: 14px;
+      top: 0;
+      left: 0;
+      width: 1920px;
+      height: 1080px;
       opacity: 0;
-      transform: translateY(-20px);
-      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.4s ease;
     }
 
-    .tracker-container.active {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    .olympic-tracker-wrapper.active { opacity: 1; }
 
-    .athlete-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-      padding-bottom: 6px;
-    }
-
-    .athlete-name {
-      font-size: 12px;
-      font-weight: 900;
-      text-transform: uppercase;
-      color: #ffffff;
-      letter-spacing: 0.5px;
-    }
-
-    .athlete-nation {
-      background: #38b6ff;
-      color: #040d18;
-      font-size: 9px;
-      font-weight: 900;
-      padding: 2px 6px;
+    /* 1. Tag Categoria (In Alto a Sinistra) */
+    .top-left-tag {
+      position: absolute;
+      top: 35px;
+      left: 50px;
+      background: rgba(230, 240, 245, 0.85);
+      color: #3b505c;
+      font-size: 13px;
+      font-weight: 800;
+      padding: 6px 14px;
       border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      border: 1px solid rgba(255,255,255,0.6);
     }
 
-    /* Mini Mappa Verticale in Alto */
-    .minimap-box {
-      position: relative;
-      width: 100%;
-      height: 150px;
-      background: rgba(2, 6, 14, 0.9);
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      overflow: hidden;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: center;
-    }
-
-    svg.minimap-svg {
-      width: 100%;
-      height: 100%;
+    /* 2. Percorso Verticale Minimal (A Destra) */
+    .vertical-track-container {
       position: absolute;
-    }
-
-    .mini-track {
-      fill: none;
-      stroke: rgba(255, 255, 255, 0.2);
-      stroke-width: 4;
-      stroke-linecap: round;
-    }
-
-    .mini-track-active {
-      fill: none;
-      stroke: #00ff88;
-      stroke-width: 4;
-      stroke-linecap: round;
-      filter: drop-shadow(0 0 6px #00ff88);
-    }
-
-    /* Linee Start / Finish */
-    .mini-line {
-      position: absolute;
-      width: 20px;
-      height: 2px;
-      background: #ff3344;
-      left: calc(50% - 10px);
-    }
-    .mini-line.start { top: 5px; }
-    .mini-line.finish { bottom: 5px; }
-
-    /* Pallino Atleta sincronizzato esattamente sulla curva */
-    .athlete-dot {
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      background: #ff3344;
-      border: 2px solid #ffffff;
-      border-radius: 50%;
-      box-shadow: 0 0 10px #ff3344;
-      transform: translate(-50%, -50%);
-      transition: top 0.05s linear, left 0.05s linear;
-    }
-
-    /* Cronometro in Basso più piccolo e pulito */
-    .chrono-box {
+      top: 220px;
+      right: 100px;
+      width: 120px;
+      height: 520px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      background: rgba(3, 10, 18, 0.7);
-      padding: 8px;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .chrono-label {
-      font-size: 8px;
-      font-weight: 800;
-      color: #8a9ba8;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+    /* Icona Casetta Start */
+    .icon-box {
+      width: 32px;
+      height: 32px;
+      background: #177d90;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 2;
     }
 
-    .chrono-time {
-      font-size: 20px;
+    .icon-box.finish {
+      background: #177d90;
+      font-size: 14px;
       font-weight: 900;
-      color: #00ff88;
-      font-family: monospace;
-      letter-spacing: -0.5px;
-      margin: 2px 0 4px 0;
-      text-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
     }
 
-    .status-badge {
-      font-size: 8px;
-      font-weight: 900;
-      padding: 2px 6px;
-      border-radius: 4px;
-      text-align: center;
-      text-transform: uppercase;
-      background: rgba(0, 255, 136, 0.15);
-      color: #00ff88;
-      border: 1px solid rgba(0, 255, 136, 0.35);
-      letter-spacing: 0.5px;
+    /* SVG Percorso */
+    .svg-track-box {
+      position: relative;
       width: 100%;
+      height: 440px;
+    }
+
+    svg.track-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    /* Linee di Traguardo / Parziali Tratteggiate */
+    .split-line {
+      stroke: rgba(140, 160, 175, 0.4);
+      stroke-width: 1.5;
+      stroke-dasharray: 4 4;
+    }
+
+    /* Linea Percorso Grigia Reale */
+    .main-path {
+      fill: none;
+      stroke: #9bb0bd;
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 2px 5px rgba(0,0,0,0.25));
+    }
+
+    /* Linea Verde Avanzamento */
+    .active-path {
+      fill: none;
+      stroke: #00ff88;
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 0 8px #00ff88);
+    }
+
+    /* Pallino Bianco Atleta che Scorre */
+    .athlete-marker {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: #ffffff;
+      border: 3px solid #177d90;
+      border-radius: 50%;
+      box-shadow: 0 0 12px rgba(255,255,255,0.9), 0 2px 6px rgba(0,0,0,0.4);
+      transform: translate(-50%, -50%);
+      transition: top 0.04s linear, left 0.04s linear;
+      z-index: 10;
+    }
+
+    /* 3. Cronometro Olimpico (In Basso a Destra) */
+    .bottom-right-chrono {
+      position: absolute;
+      bottom: 50px;
+      right: 60px;
+      display: flex;
+      align-items: center;
+      background: #0d3843;
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 8px;
+      padding: 6px 14px;
+      gap: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .chrono-number {
+      font-size: 24px;
+      font-weight: 800;
+      color: #ffffff;
+      font-family: 'Montserrat', sans-serif;
+      min-width: 80px;
+      text-align: right;
+    }
+
+    .sky-rings {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      border-left: 1px solid rgba(255,255,255,0.2);
+      padding-left: 10px;
+      font-size: 11px;
+      font-weight: 900;
+      color: #38b6ff;
+      letter-spacing: 1px;
     }
   </style>
 </head>
 <body>
 
-  <div class="tracker-container" id="trackerBox">
-    <div class="athlete-header">
-      <div class="athlete-name" id="athName">M. ODERMATT</div>
-      <div class="athlete-nation" id="athNat">SUI</div>
+  <div class="olympic-tracker-wrapper" id="trackerWrapper">
+    <!-- Categoria in alto a sinistra -->
+    <div class="top-left-tag" id="categoryTag">WOMEN'S DOWNHILL</div>
+
+    <!-- Percorso Verticale a Destra -->
+    <div class="vertical-track-container">
+      <div class="icon-box">🏠</div>
+
+      <div class="svg-track-box">
+        <svg class="track-svg" viewBox="0 0 120 440">
+          <!-- Linee Orizzontali Parziali -->
+          <line x1="-80" y1="80" x2="100" y2="80" class="split-line" />
+          <line x1="-80" y1="180" x2="100" y2="180" class="split-line" />
+          <line x1="-80" y1="280" x2="100" y2="280" class="split-line" />
+          <line x1="-80" y1="370" x2="100" y2="370" class="split-line" />
+
+          <!-- Percorso Curvo Fedele alla Foto -->
+          <path id="svgPath" class="main-path" d="
+            M 60,10 
+            C 50,40 70,60 65,90 
+            C 60,120 45,140 60,170 
+            C 75,200 80,230 65,260 
+            C 50,290 70,330 60,370 
+            C 55,390 65,410 60,430
+          " />
+
+          <path id="svgActivePath" class="active-path" d="
+            M 60,10 
+            C 50,40 70,60 65,90 
+            C 60,120 45,140 60,170 
+            C 75,200 80,230 65,260 
+            C 50,290 70,330 60,370 
+            C 55,390 65,410 60,430
+          " />
+        </svg>
+
+        <!-- Pallino Atleta -->
+        <div class="athlete-marker" id="athleteMarker" style="top: 10px; left: 60px;"></div>
+      </div>
+
+      <div class="icon-box finish">🏁</div>
     </div>
 
-    <!-- Percorso in Alto -->
-    <div class="minimap-box">
-      <div class="mini-line start"></div>
-      <svg class="minimap-svg" viewBox="0 0 100 150">
-        <path class="mini-track" d="M 50,10 C 20,45 80,80 50,115 C 35,130 65,140 50,145" />
-        <path class="mini-track-active" id="miniActivePath" d="M 50,10 C 20,45 80,80 50,115 C 35,130 65,140 50,145" />
-      </svg>
-      <div class="athlete-dot" id="athDot" style="top: 10px; left: 50px;"></div>
-      <div class="mini-line finish"></div>
-    </div>
-
-    <!-- Tempo in Basso -->
-    <div class="chrono-box">
-      <div class="chrono-label">TEMPO LIVE</div>
-      <div class="chrono-time" id="chronoDisplay">00:00.00</div>
-      <div class="status-badge" id="statusBadge">IN DISCESA</div>
+    <!-- Cronometro in Basso a Destra -->
+    <div class="bottom-right-chrono">
+      <div class="chrono-number" id="chronoTimer">0.0</div>
+      <div class="sky-rings">SKY <span>GAMES</span></div>
     </div>
   </div>
 
   <script>
     const channel = new BroadcastChannel('sky_live_tracker_channel');
-    const box = document.getElementById('trackerBox');
-    const dot = document.getElementById('athDot');
-    const chronoDisp = document.getElementById('chronoDisplay');
-    const statusBd = document.getElementById('statusBadge');
-    const activePath = document.getElementById('miniActivePath');
+    const wrapper = document.getElementById('trackerWrapper');
+    const path = document.getElementById('svgPath');
+    const activePath = document.getElementById('svgActivePath');
+    const marker = document.getElementById('athleteMarker');
+    const timerDisplay = document.getElementById('chronoTimer');
 
-    const pathLength = activePath.getTotalLength();
-    activePath.style.strokeDasharray = pathLength;
-    activePath.style.strokeDashoffset = pathLength;
+    const totalLength = path.getTotalLength();
+    activePath.style.strokeDasharray = totalLength;
+    activePath.style.strokeDashoffset = totalLength;
 
-    let timerInterval = null;
+    let animInterval = null;
     let startTime = 0;
 
-    // Funzione matematica esatta basata sulla curva SVG (M 50,10 C 20,45 80,80 50,115 C 35,130 65,140 50,145)
-    function getPointAlongPath(progress) {
-      let x, y;
-      if (progress <= 0.5) {
-        let p = progress / 0.5;
-        // Prima metà: da 50,10 a 50,115 passando per la curva a sinistra
-        x = 50 - Math.sin(p * Math.PI) * 30;
-        y = 10 + (p * 105);
-      } else {
-        let p = (progress - 0.5) / 0.5;
-        // Seconda metà: da 50,115 a 50,145 passando per la curva finale
-        x = 50 + Math.sin(p * Math.PI) * 15;
-        y = 115 + (p * 30);
-      }
-      return { x, y };
+    function startRace(durationSeconds) {
+      clearInterval(animInterval);
+      startTime = Date.now();
+      const durationMs = (durationSeconds || 58) * 1000;
+
+      animInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        let progress = elapsed / durationMs;
+
+        if (progress >= 1) {
+          progress = 1;
+          clearInterval(animInterval);
+        }
+
+        // Cronometro 1 o 2 decimali come in TV (es. 13.3)
+        const seconds = (elapsed / 1000).toFixed(1);
+        timerDisplay.innerText = seconds;
+
+        // Tracciato verde che si riempie
+        activePath.style.strokeDashoffset = totalLength * (1 - progress);
+
+        // IL PALLINO SEGUE PERFETTAMENTE IL PERCORSO SVG REALE
+        const currentPoint = path.getPointAtLength(progress * totalLength);
+        
+        // Converti la posizione SVG in percentuale nel contenitore
+        marker.style.left = (currentPoint.x / 120 * 100) + '%';
+        marker.style.top = (currentPoint.y / 440 * 100) + '%';
+
+      }, 30);
     }
 
     channel.onmessage = (event) => {
       const data = event.data;
       if (data.action === 'start') {
-        document.getElementById('athName').innerText = data.name || 'ATLETA';
-        document.getElementById('athNat').innerText = data.nation || 'ITA';
-        box.classList.add('active');
-        
-        clearInterval(timerInterval);
-        startTime = Date.now();
-        let duration = 55000;
-        let currentProg = 0;
-
-        activePath.style.strokeDashoffset = pathLength;
-
-        timerInterval = setInterval(() => {
-          let elapsed = Date.now() - startTime;
-          currentProg = elapsed / duration;
-
-          if (currentProg >= 1) {
-            currentProg = 1;
-            clearInterval(timerInterval);
-            statusBd.innerText = "ARRIVO";
-            statusBd.style.color = "#38b6ff";
-            statusBd.style.borderColor = "#38b6ff";
-            statusBd.style.background = "rgba(56, 182, 255, 0.15)";
-          }
-
-          let mins = Math.floor(elapsed / 60000);
-          let secs = Math.floor((elapsed % 60000) / 1000);
-          let cent = Math.floor((elapsed % 1000) / 10);
-          chronoDisp.innerText = 
-            (mins < 10 ? "0" + mins : mins) + ":" + 
-            (secs < 10 ? "0" + secs : secs) + "." + 
-            (cent < 10 ? "0" + cent : cent);
-
-          activePath.style.strokeDashoffset = pathLength * (1 - currentProg);
-
-          let pt = getPointAlongPath(currentProg);
-          dot.style.left = pt.x + '%';
-          dot.style.top = pt.y + '%';
-
-        }, 30);
-
+        if (data.category) document.getElementById('categoryTag').innerText = data.category;
+        wrapper.classList.add('active');
+        startRace(data.duration || 58);
       } else if (data.action === 'hide') {
-        box.classList.remove('active');
-        clearInterval(timerInterval);
+        wrapper.classList.remove('active');
+        clearInterval(animInterval);
       }
     };
   </script>
