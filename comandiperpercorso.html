@@ -24,3 +24,40 @@
     });
   }
 </script>
+
+<!-- Controllo Live Tracker Atleta in Discesa -->
+<div class="card" style="margin-top:20px; background:#1e293b; border:1px solid #38b6ff;">
+  <h3 style="color:#38b6ff; margin-top:0;">⏱️ Live Tracker Atleta (Mini-Mappa & Tempo)</h3>
+  
+  <div class="form-group" style="display:flex; gap:10px;">
+    <div style="flex:2;">
+      <label>Nome Atleta:</label>
+      <input type="text" id="liveAthName" value="MARCO ODERMATT">
+    </div>
+    <div style="flex:1;">
+      <label>Nazione:</label>
+      <input type="text" id="liveAthNat" value="SUI">
+    </div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn-show" onclick="startLiveTracker()" style="background:#00ff88; color:#08131d;">🟢 PARTENZA ATLETA (START)</button>
+    <button class="btn-hide" onclick="hideLiveTracker()">🚫 NASCONDI TRACKER</button>
+  </div>
+</div>
+
+<script>
+  const liveChannel = new BroadcastChannel('sky_live_tracker_channel');
+
+  function startLiveTracker() {
+    liveChannel.postMessage({
+      action: 'start',
+      name: document.getElementById('liveAthName').value,
+      nation: document.getElementById('liveAthNat').value
+    });
+  }
+
+  function hideLiveTracker() {
+    liveChannel.postMessage({ action: 'hide' });
+  }
+</script>
