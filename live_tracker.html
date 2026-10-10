@@ -17,18 +17,18 @@
       color: white;
     }
 
-    /* Box posizionato esattamente in ALTO A DESTRA come nella TV */
+    /* Box in alto a destra, verticale e pulito */
     .tracker-container {
       position: absolute;
       top: 40px;
       right: 50px;
-      width: 280px;
-      background: linear-gradient(135deg, rgba(8, 20, 36, 0.95) 0%, rgba(3, 10, 20, 0.98) 100%);
+      width: 220px;
+      background: linear-gradient(135deg, rgba(8, 20, 36, 0.96) 0%, rgba(3, 10, 20, 0.99) 100%);
       backdrop-filter: blur(14px);
-      border-radius: 12px;
+      border-radius: 14px;
       border: 1px solid rgba(56, 182, 255, 0.35);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
-      padding: 12px 14px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.85);
+      padding: 14px;
       opacity: 0;
       transform: translateY(-20px);
       transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -44,12 +44,12 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 10px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
       padding-bottom: 6px;
     }
 
     .athlete-name {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 900;
       text-transform: uppercase;
       color: #ffffff;
@@ -63,24 +63,18 @@
       font-weight: 900;
       padding: 2px 6px;
       border-radius: 4px;
-      letter-spacing: 0.8px;
     }
 
-    .tracker-body {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
-    /* Mini Mappa Verticale Stile TV */
+    /* Mini Mappa Verticale in Alto */
     .minimap-box {
       position: relative;
-      width: 50px;
-      height: 140px;
-      background: rgba(2, 6, 12, 0.9);
+      width: 100%;
+      height: 150px;
+      background: rgba(2, 6, 14, 0.9);
       border-radius: 8px;
       border: 1px solid rgba(255, 255, 255, 0.15);
       overflow: hidden;
+      margin-bottom: 12px;
       display: flex;
       justify-content: center;
     }
@@ -106,18 +100,18 @@
       filter: drop-shadow(0 0 6px #00ff88);
     }
 
-    /* Linee Start / Finish sulla minimappa */
+    /* Linee Start / Finish */
     .mini-line {
       position: absolute;
-      width: 24px;
-      height: 3px;
+      width: 20px;
+      height: 2px;
       background: #ff3344;
-      left: 13px;
+      left: calc(50% - 10px);
     }
-    .mini-line.start { top: 6px; }
-    .mini-line.finish { bottom: 6px; }
+    .mini-line.start { top: 5px; }
+    .mini-line.finish { bottom: 5px; }
 
-    /* Pallino Posizione Atleta */
+    /* Pallino Atleta sincronizzato esattamente sulla curva */
     .athlete-dot {
       position: absolute;
       width: 10px;
@@ -130,11 +124,15 @@
       transition: top 0.05s linear, left 0.05s linear;
     }
 
+    /* Cronometro in Basso più piccolo e pulito */
     .chrono-box {
-      flex: 1;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      align-items: center;
+      background: rgba(3, 10, 18, 0.7);
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .chrono-label {
@@ -146,19 +144,19 @@
     }
 
     .chrono-time {
-      font-size: 21px;
+      font-size: 20px;
       font-weight: 900;
       color: #00ff88;
       font-family: monospace;
-      letter-spacing: -1px;
+      letter-spacing: -0.5px;
       margin: 2px 0 4px 0;
       text-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
     }
 
     .status-badge {
-      font-size: 9px;
+      font-size: 8px;
       font-weight: 900;
-      padding: 3px 6px;
+      padding: 2px 6px;
       border-radius: 4px;
       text-align: center;
       text-transform: uppercase;
@@ -166,6 +164,7 @@
       color: #00ff88;
       border: 1px solid rgba(0, 255, 136, 0.35);
       letter-spacing: 0.5px;
+      width: 100%;
     }
   </style>
 </head>
@@ -177,24 +176,22 @@
       <div class="athlete-nation" id="athNat">SUI</div>
     </div>
 
-    <div class="tracker-body">
-      <!-- Mini Mappa Verticale con Linee Start e Finish -->
-      <div class="minimap-box">
-        <div class="mini-line start"></div>
-        <svg class="minimap-svg" viewBox="0 0 50 140">
-          <path class="mini-track" d="M 25,12 C 12,45 38,75 25,105 C 18,118 32,125 25,128" />
-          <path class="mini-track-active" id="miniActivePath" d="M 25,12 C 12,45 38,75 25,105 C 18,118 32,125 25,128" />
-        </svg>
-        <div class="athlete-dot" id="athDot" style="top: 12px; left: 25px;"></div>
-        <div class="mini-line finish"></div>
-      </div>
+    <!-- Percorso in Alto -->
+    <div class="minimap-box">
+      <div class="mini-line start"></div>
+      <svg class="minimap-svg" viewBox="0 0 100 150">
+        <path class="mini-track" d="M 50,10 C 20,45 80,80 50,115 C 35,130 65,140 50,145" />
+        <path class="mini-track-active" id="miniActivePath" d="M 50,10 C 20,45 80,80 50,115 C 35,130 65,140 50,145" />
+      </svg>
+      <div class="athlete-dot" id="athDot" style="top: 10px; left: 50px;"></div>
+      <div class="mini-line finish"></div>
+    </div>
 
-      <!-- Cronometro -->
-      <div class="chrono-box">
-        <div class="chrono-label">TEMPO LIVE</div>
-        <div class="chrono-time" id="chronoDisplay">00:00.00</div>
-        <div class="status-badge" id="statusBadge">IN DISCESA</div>
-      </div>
+    <!-- Tempo in Basso -->
+    <div class="chrono-box">
+      <div class="chrono-label">TEMPO LIVE</div>
+      <div class="chrono-time" id="chronoDisplay">00:00.00</div>
+      <div class="status-badge" id="statusBadge">IN DISCESA</div>
     </div>
   </div>
 
@@ -213,20 +210,19 @@
     let timerInterval = null;
     let startTime = 0;
 
+    // Funzione matematica esatta basata sulla curva SVG (M 50,10 C 20,45 80,80 50,115 C 35,130 65,140 50,145)
     function getPointAlongPath(progress) {
       let x, y;
-      if (progress <= 0.33) {
-        let p = progress / 0.33;
-        x = 25 - (p * 13);
-        y = 12 + (p * 33);
-      } else if (progress <= 0.66) {
-        let p = (progress - 0.33) / 0.33;
-        x = 12 + (p * 26);
-        y = 45 + (p * 30);
+      if (progress <= 0.5) {
+        let p = progress / 0.5;
+        // Prima metà: da 50,10 a 50,115 passando per la curva a sinistra
+        x = 50 - Math.sin(p * Math.PI) * 30;
+        y = 10 + (p * 105);
       } else {
-        let p = (progress - 0.66) / 0.34;
-        x = 38 - (p * 13);
-        y = 75 + (p * 53);
+        let p = (progress - 0.5) / 0.5;
+        // Seconda metà: da 50,115 a 50,145 passando per la curva finale
+        x = 50 + Math.sin(p * Math.PI) * 15;
+        y = 115 + (p * 30);
       }
       return { x, y };
     }
@@ -269,8 +265,8 @@
           activePath.style.strokeDashoffset = pathLength * (1 - currentProg);
 
           let pt = getPointAlongPath(currentProg);
-          dot.style.left = pt.x + 'px';
-          dot.style.top = pt.y + 'px';
+          dot.style.left = pt.x + '%';
+          dot.style.top = pt.y + '%';
 
         }, 30);
 
