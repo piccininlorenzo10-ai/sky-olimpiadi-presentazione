@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Regia Classifica Sci - Sky Winter Games</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #0f172a;
+      color: white;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #38b6ff;
+      margin-bottom: 20px;
+      font-size: 24px;
+      text-transform: uppercase;
+    }
+
+    .card {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 800;
+      color: #94a3b8;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      color: white;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .flex-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 900;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-add { background: #38b6ff; color: #040d18; }
+    .btn-show { background: #00ff88; color: #040d18; }
+    .btn-hide { background: #ff3344; color: white; }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #334155;
+      font-size: 13px;
+    }
+
+    th { color: #38b6ff; }
+
+    .btn-del {
+      background: rgba(255, 51, 68, 0.2);
+      color: #ff3344;
+      padding: 4px 8px;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>🏆 PANNELLO REGIA - CLASSIFICA LIVE SCI</h1>
+
+    <div class="card">
+      <label>Titolo Gara / Categoria:</label>
+      <input type="text" id="raceTitle" value="CLASSIFICA FIS DOWNHILL - CORTINA 2026">
+
+      <h3 style="color:#00ff88; margin: 15px 0 10px 0; font-size:16px;">AGGIUNGI NUOVO ATLETA</h3>
+      <div class="flex-row">
+        <div style="flex:2;">
+          <label>Nome Atleta:</label>
+          <input type="text" id="athName" placeholder="Es. MARCO ODERMATT">
+        </div>
+        <div style="flex:1;">
+          <label>Nazione:</label>
+          <input type="text" id="athNat" placeholder="SUI">
+        </div>
+        <div style="flex:1.5;">
+          <label>Tempo:</label>
+          <input type="text" id="athTime" placeholder="1:42.15">
+        </div>
+        <div style="flex:1;">
+          <label>Distacco:</label>
+          <input type="text" id="athDiff" placeholder="LEADER / +0.45">
+        </div>
+      </div>
+      <button class="btn-add" onclick="addAthlete()">➕ AGGIUNGI ATLETA</button>
+    </div>
+
+    <div class="card">
+      <h3>CLASSIFICA CORRENTE</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Pos</th>
+            <th>Atleta</th>
+            <th>Naz</th>
+            <th>Tempo</th>
+            <th>Distacco</th>
+            <th>Azione</th>
+          </tr>
+        </thead>
+        <tbody id="athleteTableBody">
+          <!-- Righe inserite dinamiche -->
+        </tbody>
+      </table>
+
+      <div class="btn-group" style="margin-top:20px;">
+        <button class="btn-show" onclick="showLeaderboard()">🟢 MOSTRA CLASSIFICA IN OBS</button>
+        <button class="btn-hide" onclick="hideLeaderboard()">🔴 NASCONDI CLASSIFICA</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const lbChannel = new BroadcastChannel('sky_leaderboard_channel');
+
+    let athletes = [
+      { name: 'MARCO ODERMATT', nation: 'SUI', time: '1:42.15', diff: 'LEADER' },
+      { name: 'DOMINIK PARIS', nation: 'ITA', time: '1:42.42', diff: '+0.27' },
+      { name: 'ALEKSANDER AAMODT KILDE', nation: 'NOR', time: '1:42.60', diff: '+0.45' }
+    ];
+
+    function renderTable() {
+      const tbody = document.getElementById('athleteTableBody');
+      tbody.innerHTML = '';
+      athletes.forEach((ath, idx) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><strong>${idx + 1}</strong></td>
+          <td>${ath.name}</td>
+          <td>${ath.nation}</td>
+          <td>${ath.time}</td>
+          <td>${ath.diff}</td>
+          <td><button class="btn-del" onclick="deleteAthlete(${idx})">Elimina</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+      // Invia aggiornamento live se è aperta in OBS
+      lbChannel.postMessage({ action: 'update', athletes: athletes });
+    }
+
+    function addAthlete() {
+      const name = document.getElementById('athName').value;
+      const nation = document.getElementById('athNat').value || 'ITA';
+      const time = document.getElementById('athTime').value || '0:00.00';
+      const diff = document.getElementById('athDiff').value || 'LEADER';
+
+      if (!name) {
+        alert('Inserisci il nome dell\'atleta!');
+        return;
+      }
+
+      athletes.push({ name, nation, time, diff });
+      document.getElementById('athName').value = '';
+      document.getElementById('athTime').value = '';
+      document.getElementById('athDiff').value = '';
+
+      renderTable();
+    }
+
+    function deleteAthlete(index) {
+      athletes.splice(index, 1);
+      renderTable();
+    }
+
+    function showLeaderboard() {
+      lbChannel.postMessage({
+        action: 'show',
+        title: document.getElementById('raceTitle').value,
+        athletes: athletes
+      });
+    }
+
+    function hideLeaderboard() {
+      lbChannel.postMessage({ action: 'hide' });
+    }
+
+    // Inizializza tabella
+    renderTable();
+  </script>
+</body>
+</html>
