@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Sky Live Score Bug Virtual Leaderboard (11 Elements)</title>
+  <title>Sky Live Score Bug Virtual Leaderboard (Dynamic 7/11 Elements)</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&display=swap');
 
@@ -132,6 +132,7 @@
 
     .tech-value { font-weight: 800; color: #0d2838; }
 
+    /* Barra Elementi Dinamica */
     .elements-bar {
       display: flex;
       gap: 3px;
@@ -188,23 +189,27 @@
       </div>
     </div>
 
-    <div class="elements-bar">
-      <div class="element-box" id="el0"></div>
-      <div class="element-box" id="el1"></div>
-      <div class="element-box" id="el2"></div>
-      <div class="element-box" id="el3"></div>
-      <div class="element-box" id="el4"></div>
-      <div class="element-box" id="el5"></div>
-      <div class="element-box" id="el6"></div>
-      <div class="element-box" id="el7"></div>
-      <div class="element-box" id="el8"></div>
-      <div class="element-box" id="el9"></div>
-      <div class="element-box" id="el10"></div>
-    </div>
+    <!-- Barra Elementi Generata Dinamicamente via JS -->
+    <div class="elements-bar" id="elementsBar"></div>
   </div>
 
   <script>
     const channel = new BroadcastChannel('sky_live_score_channel');
+
+    function renderElementBoxes(count) {
+      const bar = document.getElementById('elementsBar');
+      bar.innerHTML = '';
+      const total = count || 11;
+      for (let i = 0; i < total; i++) {
+        const box = document.createElement('div');
+        box.className = 'element-box';
+        box.id = `el${i}`;
+        bar.appendChild(box);
+      }
+    }
+
+    // Inizializza con 11 di default
+    renderElementBoxes(11);
 
     channel.onmessage = (event) => {
       try {
@@ -216,8 +221,17 @@
         const leaderRow = document.getElementById('leaderRow');
 
         if (data.visible) {
-          document.getElementById('eventTitle').innerText = data.eventTitle || "WOMEN'S FREE SKATING";
+          document.getElementById('eventTitle').innerText = data.eventTitle || "WOMEN'S SKATING";
           
+          // Gestisci il numero di elementi dinamico se inviato dalla dashboard
+          if (data.elementStates && Array.isArray(data.elementStates)) {
+            renderElementBoxes(data.elementStates.length);
+            data.elementStates.forEach((state, index) => {
+              const box = document.getElementById(`el${index}`);
+              if (box) box.className = 'element-box ' + (state || '');
+            });
+          }
+
           const currentTotal = parseFloat(data.totalScore || 0);
           const leaderTotal = parseFloat(data.leaderScore || 0);
 
@@ -247,13 +261,6 @@
           const curGoe = parseFloat(data.currentGoe || 0);
           document.getElementById('baseScore').innerText = curBase.toFixed(2);
           document.getElementById('goeScore').innerText = (curGoe >= 0 ? '+' : '') + curGoe.toFixed(2);
-
-          if (data.elementStates && Array.isArray(data.elementStates)) {
-            data.elementStates.forEach((state, index) => {
-              const box = document.getElementById(`el${index}`);
-              if (box) box.className = 'element-box ' + (state || '');
-            });
-          }
 
           if (data.isCompact) {
             bug.classList.add('compact');
