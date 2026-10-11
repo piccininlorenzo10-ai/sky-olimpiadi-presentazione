@@ -2,14 +2,14 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Regia Sky - Live Score Calcolo Automatico</title>
+  <title>Regia Sky - Live Score 11 Elementi (Free & Short)</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
       background: #121824;
       color: white;
       padding: 20px;
-      max-width: 600px;
+      max-width: 650px;
       margin: 0 auto;
     }
     h1 { color: #38b6ff; text-align: center; font-size: 20px; }
@@ -32,21 +32,30 @@
     .btn-yellow { background: #ecc94b; color: #000; }
     .btn-green { background: #48bb78; color: white; }
 
-    /* Griglia 7 Elementi */
+    /* Griglia 11 Elementi */
     .element-row {
       display: grid;
-      grid-template-columns: 30px 1fr 1fr 30px;
+      grid-template-columns: 35px 1fr 1fr 35px;
       gap: 8px;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .element-row span { font-weight: bold; color: #38b6ff; }
-    .status-indicator { font-size: 18px; text-align: center; }
+    .status-indicator { font-size: 16px; text-align: center; }
   </style>
 </head>
 <body>
 
-  <h1>🎛️ Regia Punti (Calcolo & GOE Automatico)</h1>
+  <h1>🎛️ Regia Punti (11 Elementi - Free & Short)</h1>
+
+  <!-- Titolo Evento -->
+  <div class="card">
+    <h3 style="color: #38b6ff; margin-top: 0;">📋 Segmento di Gara</h3>
+    <div class="form-group">
+      <label>Titolo Evento:</label>
+      <input type="text" id="eventTitleInput" value="WOMEN'S FREE SKATING" oninput="calcAndSend(true)">
+    </div>
+  </div>
 
   <!-- Leader -->
   <div class="card">
@@ -55,10 +64,10 @@
       <label><input type="checkbox" id="isFirstAthlete" onchange="calcAndSend(true)"> Prima atleta in gara (Nasconde Leader)</label>
     </div>
     <div style="display:flex; gap:10px;">
-      <input type="text" id="leaderCountry" value="CHN" placeholder="Nazione">
-      <input type="text" id="leaderFlag" value="cn" placeholder="Bandiera">
-      <input type="text" id="leaderName" value="ZHANG" placeholder="Cognome">
-      <input type="number" step="0.01" id="leaderScore" value="61.54" placeholder="Punteggio">
+      <input type="text" id="leaderCountry" value="CHN" placeholder="Nazione" oninput="calcAndSend(true)">
+      <input type="text" id="leaderFlag" value="cn" placeholder="Bandiera" oninput="calcAndSend(true)">
+      <input type="text" id="leaderName" value="ZHANG" placeholder="Cognome" oninput="calcAndSend(true)">
+      <input type="number" step="0.01" id="leaderScore" value="61.54" placeholder="Punteggio" oninput="calcAndSend(true)">
     </div>
   </div>
 
@@ -66,16 +75,16 @@
   <div class="card">
     <h3 style="color: #38b6ff; margin-top: 0;">👤 Atleta in Pista</h3>
     <div style="display:flex; gap:10px;">
-      <input type="text" id="currentCountry" value="ITA" placeholder="Nazione">
-      <input type="text" id="currentFlag" value="it" placeholder="Bandiera">
-      <input type="text" id="currentName" value="GUTMANN" placeholder="Cognome">
+      <input type="text" id="currentCountry" value="ITA" placeholder="Nazione" oninput="calcAndSend(true)">
+      <input type="text" id="currentFlag" value="it" placeholder="Bandiera" oninput="calcAndSend(true)">
+      <input type="text" id="currentName" value="GUTMANN" placeholder="Cognome" oninput="calcAndSend(true)">
     </div>
   </div>
 
-  <!-- Tabella 7 Elementi -->
+  <!-- Tabella 11 Elementi -->
   <div class="card">
-    <h3 style="color: #38b6ff; margin-top: 0;">⛸️ Tabella 7 Elementi (Valutazione)</h3>
-    <p style="font-size:12px; color:#a0aec0;">Inserisci Base e GOE. Il colore del quadrato e la somma totale si calcolano da soli!</p>
+    <h3 style="color: #38b6ff; margin-top: 0;">⛸️ Tabella 11 Elementi Tecnici (Free / Short)</h3>
+    <p style="font-size:12px; color:#a0aec0; margin-bottom: 12px;">Inserisci Base e GOE per ciascuno degli 11 elementi. I colori e il totale si aggiornano automaticamente!</p>
 
     <div id="elementsContainer"></div>
 
@@ -100,14 +109,14 @@
     const liveChannel = new BroadcastChannel('sky_live_score_channel');
     let compactState = false;
 
-    // Genera automaticamente i campi per i 7 elementi
+    // Genera automaticamente i campi per gli 11 elementi
     const container = document.getElementById('elementsContainer');
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 11; i++) {
       container.innerHTML += `
         <div class="element-row">
           <span>#${i+1}</span>
-          <input type="number" step="0.01" id="base_${i}" placeholder="Base (es. 4.00)" oninput="calcAndSend(true)">
-          <input type="number" step="0.01" id="goe_${i}" placeholder="GOE (es. 1.80)" oninput="calcAndSend(true)">
+          <input type="number" step="0.01" id="base_${i}" placeholder="Base" oninput="calcAndSend(true)">
+          <input type="number" step="0.01" id="goe_${i}" placeholder="GOE" oninput="calcAndSend(true)">
           <span class="status-indicator" id="status_${i}">⬛</span>
         </div>
       `;
@@ -124,7 +133,7 @@
       let currentBase = 0;
       let currentGoe = 0;
 
-      for (let i = 0; i < 7; i++) {
+      for (let i = 0; i < 11; i++) {
         const baseVal = document.getElementById(`base_${i}`).value;
         const goeVal = document.getElementById(`goe_${i}`).value;
 
@@ -136,26 +145,24 @@
           const validGoe = isNaN(goe) ? 0 : goe;
           totalScore += (base + validGoe);
 
-          // Traccia ultimo elemento modificato
           currentBase = base;
           currentGoe = validGoe;
 
-          // Assegnazione Automatica Colore
           if (isNaN(goe)) {
-            elementStates.push('yellow'); // In corso
+            elementStates.push('yellow');
             statusEl.innerText = '🟨';
           } else if (goe > 0) {
-            elementStates.push('green'); // GOE Positivo
+            elementStates.push('green');
             statusEl.innerText = '🟩';
           } else if (goe < 0) {
-            elementStates.push('red'); // GOE Negativo
+            elementStates.push('red');
             statusEl.innerText = '🟥';
           } else {
-            elementStates.push('yellow'); // GOE 0
+            elementStates.push('yellow');
             statusEl.innerText = '🟨';
           }
         } else {
-          elementStates.push(''); // Non eseguito
+          elementStates.push('');
           statusEl.innerText = '⬛';
         }
       }
@@ -164,7 +171,7 @@
 
       liveChannel.postMessage({
         visible: visible,
-        eventTitle: "WOMEN'S FREE SKATING",
+        eventTitle: document.getElementById('eventTitleInput').value || "WOMEN'S FREE SKATING",
         isFirstAthlete: document.getElementById('isFirstAthlete').checked,
         isCompact: compactState,
         leaderCountry: document.getElementById('leaderCountry').value,
@@ -179,6 +186,10 @@
         currentGoe: currentGoe,
         elementStates: elementStates
       });
+    }
+  </script>
+</body>
+</html>
     }
   </script>
 </body>
