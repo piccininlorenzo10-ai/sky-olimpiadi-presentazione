@@ -54,7 +54,6 @@
       z-index: 10;
     }
 
-    /* Contenitore Righe per Animazione Posizioni */
     .rows-container {
       position: relative;
       height: 72px;
@@ -133,7 +132,6 @@
 
     .tech-value { font-weight: 800; color: #0d2838; }
 
-    /* Barra 11 Elementi Tecnici */
     .elements-bar {
       display: flex;
       gap: 3px;
@@ -163,7 +161,6 @@
     <div class="header-title" id="eventTitle">WOMEN'S FREE SKATING</div>
     
     <div class="rows-container" id="rowsContainer">
-      <!-- Leader Row -->
       <div class="row-card leader-row" id="leaderRow">
         <span class="country" id="leaderCountry">CHN</span>
         <img src="https://flagcdn.com/w80/cn.png" class="flag" id="leaderFlag">
@@ -171,7 +168,6 @@
         <span class="score" id="leaderScore">61.54</span>
       </div>
 
-      <!-- Current Athlete Row -->
       <div class="row-card athlete-row" id="athleteRow">
         <span class="country" id="currentCountry">ITA</span>
         <img src="https://flagcdn.com/w80/it.png" class="flag" id="currentFlag">
@@ -180,7 +176,6 @@
       </div>
     </div>
 
-    <!-- Technical Score -->
     <div class="tech-box">
       <div class="tech-title">TECHNICAL SCORE</div>
       <div class="tech-row">
@@ -193,7 +188,6 @@
       </div>
     </div>
 
-    <!-- 11 Quadrati Elementi -->
     <div class="elements-bar">
       <div class="element-box" id="el0"></div>
       <div class="element-box" id="el1"></div>
@@ -213,60 +207,66 @@
     const channel = new BroadcastChannel('sky_live_score_channel');
 
     channel.onmessage = (event) => {
-      const data = event.data;
-      const bug = document.getElementById('bug');
-      const rowsContainer = document.getElementById('rowsContainer');
-      const leaderRow = document.getElementById('leaderRow');
+      try {
+        const data = event.data;
+        if (!data) return;
 
-      if (data.visible) {
-        document.getElementById('eventTitle').innerText = data.eventTitle || "WOMEN'S FREE SKATING";
-        
-        const currentTotal = parseFloat(data.totalScore || 0);
-        const leaderTotal = parseFloat(data.leaderScore || 0);
+        const bug = document.getElementById('bug');
+        const rowsContainer = document.getElementById('rowsContainer');
+        const leaderRow = document.getElementById('leaderRow');
 
-        if (data.isFirstAthlete) {
-          leaderRow.style.display = 'none';
-          rowsContainer.classList.remove('overtaken');
-        } else {
-          leaderRow.style.display = 'flex';
-          document.getElementById('leaderCountry').innerText = data.leaderCountry || '';
-          document.getElementById('leaderFlag').src = `https://flagcdn.com/w80/${(data.leaderFlag || 'cn').toLowerCase()}.png`;
-          document.getElementById('leaderName').innerText = data.leaderName || '';
-          document.getElementById('leaderScore').innerText = leaderTotal.toFixed(2);
+        if (data.visible) {
+          document.getElementById('eventTitle').innerText = data.eventTitle || "WOMEN'S FREE SKATING";
+          
+          const currentTotal = parseFloat(data.totalScore || 0);
+          const leaderTotal = parseFloat(data.leaderScore || 0);
 
-          if (currentTotal > leaderTotal) {
-            rowsContainer.classList.add('overtaken');
-          } else {
+          if (data.isFirstAthlete) {
+            leaderRow.style.display = 'none';
             rowsContainer.classList.remove('overtaken');
+          } else {
+            leaderRow.style.display = 'flex';
+            document.getElementById('leaderCountry').innerText = data.leaderCountry || '';
+            document.getElementById('leaderFlag').src = `https://flagcdn.com/w80/${(data.leaderFlag || 'cn').toLowerCase()}.png`;
+            document.getElementById('leaderName').innerText = data.leaderName || '';
+            document.getElementById('leaderScore').innerText = leaderTotal.toFixed(2);
+
+            if (currentTotal > leaderTotal) {
+              rowsContainer.classList.add('overtaken');
+            } else {
+              rowsContainer.classList.remove('overtaken');
+            }
           }
-        }
 
-        document.getElementById('currentCountry').innerText = data.currentCountry || '';
-        document.getElementById('currentFlag').src = `https://flagcdn.com/w80/${(data.currentFlag || 'it').toLowerCase()}.png`;
-        document.getElementById('currentName').innerText = data.currentName || '';
-        document.getElementById('currentScore').innerText = currentTotal.toFixed(2);
-        
-        const curBase = parseFloat(data.currentBase || 0);
-        const curGoe = parseFloat(data.currentGoe || 0);
-        document.getElementById('baseScore').innerText = curBase.toFixed(2);
-        document.getElementById('goeScore').innerText = (curGoe >= 0 ? '+' : '') + curGoe.toFixed(2);
+          document.getElementById('currentCountry').innerText = data.currentCountry || '';
+          document.getElementById('currentFlag').src = `https://flagcdn.com/w80/${(data.currentFlag || 'it').toLowerCase()}.png`;
+          document.getElementById('currentName').innerText = data.currentName || '';
+          document.getElementById('currentScore').innerText = currentTotal.toFixed(2);
+          
+          const curBase = parseFloat(data.currentBase || 0);
+          const curGoe = parseFloat(data.currentGoe || 0);
+          document.getElementById('baseScore').innerText = curBase.toFixed(2);
+          document.getElementById('goeScore').innerText = (curGoe >= 0 ? '+' : '') + curGoe.toFixed(2);
 
-        if (data.elementStates && Array.isArray(data.elementStates)) {
-          data.elementStates.forEach((state, index) => {
-            const box = document.getElementById(`el${index}`);
-            if (box) box.className = 'element-box ' + state;
-          });
-        }
+          if (data.elementStates && Array.isArray(data.elementStates)) {
+            data.elementStates.forEach((state, index) => {
+              const box = document.getElementById(`el${index}`);
+              if (box) box.className = 'element-box ' + (state || '');
+            });
+          }
 
-        if (data.isCompact) {
-          bug.classList.add('compact');
+          if (data.isCompact) {
+            bug.classList.add('compact');
+          } else {
+            bug.classList.remove('compact');
+          }
+
+          bug.classList.add('active');
         } else {
-          bug.classList.remove('compact');
+          bug.classList.remove('active');
         }
-
-        bug.classList.add('active');
-      } else {
-        bug.classList.remove('active');
+      } catch (err) {
+        console.error("Errore di gestione messaggio:", err);
       }
     };
   </script>
