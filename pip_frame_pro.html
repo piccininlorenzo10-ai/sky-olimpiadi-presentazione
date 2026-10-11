@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Sky Winter Games - Ultimate POV 2 Embedded</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      font-family: 'Montserrat', sans-serif;
+      background: transparent;
+    }
+
+    /* Contenitore Principale in Basso a Destra */
+    .pip-wrapper {
+      position: absolute;
+      bottom: 40px;
+      right: 40px;
+      width: 520px;
+      height: 292px;
+      border-radius: 20px;
+      overflow: hidden; /* Taglia automaticamente tutto ciò che esce dai bordi arrotondati! */
+      box-shadow: 
+        0 0 20px rgba(56, 182, 255, 0.5),
+        0 0 40px rgba(0, 119, 255, 0.3),
+        0 20px 40px rgba(0, 0, 0, 0.8);
+      border: 3px solid #38b6ff;
+      animation: neonGlow 3s infinite alternate ease-in-out;
+      background: #040c16;
+    }
+
+    @keyframes neonGlow {
+      0% {
+        box-shadow: 0 0 15px rgba(56, 182, 255, 0.4), 0 0 30px rgba(0, 119, 255, 0.2);
+        border-color: rgba(56, 182, 255, 0.8);
+      }
+      100% {
+        box-shadow: 0 0 30px rgba(56, 182, 255, 0.8), 0 0 60px rgba(0, 210, 255, 0.5);
+        border-color: rgba(0, 210, 255, 1);
+      }
+    }
+
+    /* Elemento Iframe o Video incorporato di VDO.Ninja */
+    .pip-video-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      object-fit: cover;
+    }
+
+    /* Badge TV Broadcast in Alto a Sinistra */
+    .pip-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: linear-gradient(135deg, rgba(9, 23, 38, 0.9) 0%, rgba(4, 12, 22, 0.95) 100%);
+      border: 1px solid #38b6ff;
+      padding: 4px 14px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: #ff3344;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #ff3344;
+      animation: blink 1.2s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .badge-text {
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .badge-sub {
+      color: #38b6ff;
+      font-weight: 800;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="pip-wrapper">
+    <!-- Badge Trasmittente sovrapposto -->
+    <div class="pip-badge">
+      <div class="live-dot"></div>
+      <span class="badge-text">CAM 2 <span class="badge-sub">• SECOND POV</span></span>
+    </div>
+
+    <!-- INSERISCI QUI IL LINK DI VDO.NINJA DI TUO FRATELLO -->
+    <!-- (Es: https://vdo.ninja/?view=XXXXX&autoplay&muted) -->
+    <iframe class="pip-video-frame" id="vdoIframe" src=""></iframe>
+  </div>
+
+  <script>
+    // Sostituisci l'URL qui sotto con il link VIEW di VDO.Ninja che ti dà tuo fratello
+    // Nota: nel link di VDO.Ninja ricordati di usare ?view=... anziché ?push=...
+    const vdoLink = "https://vdo.ninja/?view=cJqRjvW"; 
+    
+    if (vdoLink && vdoLink !== "https://vdo.ninja/?view=cJqRjvW") {
+      document.getElementById('vdoIframe').src = vdoLink + "&autoplay&muted=false";
+    } else {
+      console.warn("Ricordati di inserire il link di VDO.Ninja nel codice JavaScript della pagina!");
+    }
+  </script>
+</body>
+</html>
