@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Sky Live Score Bug Virtual Leaderboard</title>
+  <title>Sky Live Score Bug Virtual Leaderboard (11 Elements)</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&display=swap');
 
@@ -20,7 +20,7 @@
       position: absolute;
       top: 50px;
       left: 60px;
-      width: 320px;
+      width: 340px;
       opacity: 0;
       transform: translateY(-20px);
       transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -57,7 +57,7 @@
     /* Contenitore Righe per Animazione Posizioni */
     .rows-container {
       position: relative;
-      height: 72px; /* Altezza per ospitare due righe da 36px */
+      height: 72px;
       background: #14374e;
     }
 
@@ -76,7 +76,6 @@
       transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.4s;
     }
 
-    /* Posizioni Standard */
     .leader-row {
       top: 0;
       background: #14374e;
@@ -88,19 +87,18 @@
     .athlete-row {
       top: 0;
       background: #1b4b6b;
-      transform: translateY(36px); /* Parte sotto la riga del leader */
+      transform: translateY(36px);
       z-index: 2;
     }
 
-    /* STATO DI SORPASSO (Lo scatto in alto!) */
     .rows-container.overtaken .athlete-row {
-      transform: translateY(0); /* Sale in prima posizione */
+      transform: translateY(0);
       background: linear-gradient(90deg, #1b4b6b 0%, #2b6cb0 100%);
       box-shadow: inset 4px 0 0 #ecc94b;
     }
 
     .rows-container.overtaken .leader-row {
-      transform: translateY(36px); /* Il leader scende al secondo posto */
+      transform: translateY(36px);
     }
 
     .country { margin-right: 8px; color: #a0aec0; font-size: 14px; }
@@ -135,9 +133,10 @@
 
     .tech-value { font-weight: 800; color: #0d2838; }
 
+    /* Barra 11 Elementi Tecnici */
     .elements-bar {
       display: flex;
-      gap: 4px;
+      gap: 3px;
       padding: 6px 12px;
       background: #0d2838;
       border-top: 1px solid rgba(255,255,255,0.1);
@@ -166,17 +165,17 @@
     <div class="rows-container" id="rowsContainer">
       <!-- Leader Row -->
       <div class="row-card leader-row" id="leaderRow">
-        <span class="country" id="leaderCountry">SKY</span>
-        <img src="https://flagcdn.com/w80/it.png" class="flag" id="leaderFlag">
-        <span class="name" id="leaderName">LORY</span>
-        <span class="score" id="leaderScore">12.57</span>
+        <span class="country" id="leaderCountry">CHN</span>
+        <img src="https://flagcdn.com/w80/cn.png" class="flag" id="leaderFlag">
+        <span class="name" id="leaderName">ZHANG</span>
+        <span class="score" id="leaderScore">61.54</span>
       </div>
 
       <!-- Current Athlete Row -->
       <div class="row-card athlete-row" id="athleteRow">
-        <span class="country" id="currentCountry">SKY</span>
-        <img src="https://flagcdn.com/w80/jp.png" class="flag" id="currentFlag">
-        <span class="name" id="currentName">NALY</span>
+        <span class="country" id="currentCountry">ITA</span>
+        <img src="https://flagcdn.com/w80/it.png" class="flag" id="currentFlag">
+        <span class="name" id="currentName">GUTMANN</span>
         <span class="score" id="currentScore">13.00</span>
       </div>
     </div>
@@ -194,7 +193,7 @@
       </div>
     </div>
 
-    <!-- Quadrati Elementi -->
+    <!-- 11 Quadrati Elementi -->
     <div class="elements-bar">
       <div class="element-box" id="el0"></div>
       <div class="element-box" id="el1"></div>
@@ -203,6 +202,10 @@
       <div class="element-box" id="el4"></div>
       <div class="element-box" id="el5"></div>
       <div class="element-box" id="el6"></div>
+      <div class="element-box" id="el7"></div>
+      <div class="element-box" id="el8"></div>
+      <div class="element-box" id="el9"></div>
+      <div class="element-box" id="el10"></div>
     </div>
   </div>
 
@@ -227,11 +230,10 @@
         } else {
           leaderRow.style.display = 'flex';
           document.getElementById('leaderCountry').innerText = data.leaderCountry || '';
-          document.getElementById('leaderFlag').src = `https://flagcdn.com/w80/${(data.leaderFlag || 'it').toLowerCase()}.png`;
+          document.getElementById('leaderFlag').src = `https://flagcdn.com/w80/${(data.leaderFlag || 'cn').toLowerCase()}.png`;
           document.getElementById('leaderName').innerText = data.leaderName || '';
           document.getElementById('leaderScore').innerText = leaderTotal.toFixed(2);
 
-          // VERIFICA SORPASSO AUTOMATICO
           if (currentTotal > leaderTotal) {
             rowsContainer.classList.add('overtaken');
           } else {
@@ -240,7 +242,7 @@
         }
 
         document.getElementById('currentCountry').innerText = data.currentCountry || '';
-        document.getElementById('currentFlag').src = `https://flagcdn.com/w80/${(data.currentFlag || 'jp').toLowerCase()}.png`;
+        document.getElementById('currentFlag').src = `https://flagcdn.com/w80/${(data.currentFlag || 'it').toLowerCase()}.png`;
         document.getElementById('currentName').innerText = data.currentName || '';
         document.getElementById('currentScore').innerText = currentTotal.toFixed(2);
         
