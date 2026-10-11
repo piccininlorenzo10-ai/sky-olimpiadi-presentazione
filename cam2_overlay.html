@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Sky Winter Games - CAM 2 Tag</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      font-family: 'Montserrat', sans-serif;
+      background: transparent;
+      color: white;
+    }
+
+    /* Badge Telecamera 2 */
+    .cam-badge-container {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      display: flex;
+      align-items: center;
+      background: linear-gradient(135deg, rgba(8, 20, 36, 0.95) 0%, rgba(3, 10, 20, 0.98) 100%);
+      backdrop-filter: blur(12px);
+      border-radius: 10px;
+      border: 1px solid rgba(56, 182, 255, 0.4);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      padding: 8px 16px;
+      gap: 12px;
+    }
+
+    .live-dot {
+      width: 10px;
+      height: 10px;
+      background-color: #ff3344;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #ff3344;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.2); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .cam-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cam-title {
+      font-size: 11px;
+      font-weight: 900;
+      color: #38b6ff;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .cam-user {
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cam-badge-container">
+    <div class="live-dot"></div>
+    <div class="cam-info">
+      <span class="cam-title">CAM 2 • SECOND POV</span>
+      <span class="cam-user" id="brotherName">PROSPETTIVA PISTA</span>
+    </div>
+  </div>
+
+  <script>
+    // Permette di aggiornare il nome di tuo fratello via BroadcastChannel se necessario
+    const channel = new BroadcastChannel('sky_cam2_channel');
+    channel.onmessage = (e) => {
+      if (e.data && e.data.name) {
+        document.getElementById('brotherName').innerText = e.data.name;
+      }
+    };
+  </script>
+</body>
+</html>
