@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Sky Live Score Bug Virtual Leaderboard</title>
+  <title>Sky Live Score Bug Dynamic - Free & Short</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&display=swap');
 
@@ -20,7 +20,7 @@
       position: absolute;
       top: 50px;
       left: 60px;
-      width: 320px;
+      width: 340px;
       opacity: 0;
       transform: translateY(-20px);
       transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -34,6 +34,7 @@
       transform: translateY(0);
     }
 
+    /* Modalità Compatta */
     .bug-container.compact {
       width: 180px;
     }
@@ -50,62 +51,39 @@
       padding: 6px 12px;
       text-transform: uppercase;
       letter-spacing: 1px;
-      position: relative;
-      z-index: 10;
+      white-space: nowrap;
     }
 
-    /* Contenitore Righe per Animazione Posizioni */
-    .rows-container {
-      position: relative;
-      height: 72px; /* Altezza per ospitare due righe da 36px */
+    /* Leader Row */
+    .leader-row {
       background: #14374e;
-    }
-
-    .row-card {
-      position: absolute;
-      left: 0;
-      width: 100%;
-      height: 36px;
+      color: white;
       display: flex;
       align-items: center;
-      padding: 0 12px;
+      padding: 6px 12px;
       font-size: 15px;
       font-weight: 700;
-      color: white;
-      box-sizing: border-box;
-      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.4s;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.3s;
     }
 
-    /* Posizioni Standard */
-    .leader-row {
-      top: 0;
-      background: #14374e;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      transform: translateY(0);
-      z-index: 1;
+    .leader-row.hidden {
+      display: none;
     }
 
     .athlete-row {
-      top: 0;
       background: #1b4b6b;
-      transform: translateY(36px); /* Parte sotto la riga del leader */
-      z-index: 2;
-    }
-
-    /* STATO DI SORPASSO (Lo scatto in alto!) */
-    .rows-container.overtaken .athlete-row {
-      transform: translateY(0); /* Sale in prima posizione */
-      background: linear-gradient(90deg, #1b4b6b 0%, #2b6cb0 100%);
-      box-shadow: inset 4px 0 0 #ecc94b;
-    }
-
-    .rows-container.overtaken .leader-row {
-      transform: translateY(36px); /* Il leader scende al secondo posto */
+      color: white;
+      display: flex;
+      align-items: center;
+      padding: 6px 12px;
+      font-size: 16px;
+      font-weight: 700;
     }
 
     .country { margin-right: 8px; color: #a0aec0; font-size: 14px; }
     .flag { width: 24px; height: 16px; border-radius: 2px; margin-right: 10px; object-fit: cover; }
-    .name { text-transform: uppercase; flex: 1; letter-spacing: 0.5px; white-space: nowrap; }
+    .name { text-transform: uppercase; flex: 1; letter-spacing: 0.5px; white-space: nowrap; transition: opacity 0.3s; }
     .score { font-size: 18px; font-weight: 800; color: #ffffff; }
 
     .tech-box {
@@ -114,8 +92,6 @@
       padding: 8px 12px;
       font-size: 13px;
       font-weight: 700;
-      position: relative;
-      z-index: 10;
     }
 
     .tech-title {
@@ -125,6 +101,8 @@
       margin-bottom: 4px;
       border-bottom: 1px solid #ccc;
       padding-bottom: 2px;
+      display: flex;
+      justify-content: space-between;
     }
 
     .tech-row {
@@ -134,28 +112,6 @@
     }
 
     .tech-value { font-weight: 800; color: #0d2838; }
-
-    .elements-bar {
-      display: flex;
-      gap: 4px;
-      padding: 6px 12px;
-      background: #0d2838;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      position: relative;
-      z-index: 10;
-    }
-
-    .element-box {
-      flex: 1;
-      height: 12px;
-      border-radius: 2px;
-      background: #555555;
-      transition: background-color 0.3s ease;
-    }
-
-    .element-box.green { background: #38a169; }
-    .element-box.red { background: #e53e3e; }
-    .element-box.yellow { background: #ecc94b; }
   </style>
 </head>
 <body>
@@ -163,46 +119,36 @@
   <div class="bug-container" id="bug">
     <div class="header-title" id="eventTitle">WOMEN'S FREE SKATING</div>
     
-    <div class="rows-container" id="rowsContainer">
-      <!-- Leader Row -->
-      <div class="row-card leader-row" id="leaderRow">
-        <span class="country" id="leaderCountry">SKY</span>
-        <img src="https://flagcdn.com/w80/it.png" class="flag" id="leaderFlag">
-        <span class="name" id="leaderName">LORY</span>
-        <span class="score" id="leaderScore">12.57</span>
-      </div>
-
-      <!-- Current Athlete Row -->
-      <div class="row-card athlete-row" id="athleteRow">
-        <span class="country" id="currentCountry">SKY</span>
-        <img src="https://flagcdn.com/w80/jp.png" class="flag" id="currentFlag">
-        <span class="name" id="currentName">NALY</span>
-        <span class="score" id="currentScore">13.00</span>
-      </div>
+    <!-- Leader Row -->
+    <div class="leader-row" id="leaderRow">
+      <span class="country" id="leaderCountry">CHN</span>
+      <img src="https://flagcdn.com/w80/cn.png" class="flag" id="leaderFlag">
+      <span class="name" id="leaderName">ZHANG</span>
+      <span class="score" id="leaderScore">61.54</span>
     </div>
 
-    <!-- Technical Score -->
+    <!-- Atleta in Pista -->
+    <div class="athlete-row">
+      <span class="country" id="currentCountry">ITA</span>
+      <img src="https://flagcdn.com/w80/it.png" class="flag" id="currentFlag">
+      <span class="name" id="currentName">GUTMANN</span>
+      <span class="score" id="currentScore">11.88</span>
+    </div>
+
+    <!-- Dettaglio Elemento Tecnico / Punteggio -->
     <div class="tech-box">
-      <div class="tech-title">TECHNICAL SCORE</div>
-      <div class="tech-row">
-        <span>CURRENT BASE</span>
-        <span class="tech-value" id="baseScore">0.00</span>
+      <div class="tech-title">
+        <span id="scoreTypeTitle">TECHNICAL SCORE</span>
+        <span id="currentElementLabel" style="color:#0d2838; font-weight:900;"></span>
       </div>
       <div class="tech-row">
-        <span>CURRENT GOE</span>
-        <span class="tech-value" id="goeScore">+0.00</span>
+        <span id="labelCol1">BASE</span>
+        <span class="tech-value" id="baseScore">10.70</span>
       </div>
-    </div>
-
-    <!-- Quadrati Elementi -->
-    <div class="elements-bar">
-      <div class="element-box" id="el0"></div>
-      <div class="element-box" id="el1"></div>
-      <div class="element-box" id="el2"></div>
-      <div class="element-box" id="el3"></div>
-      <div class="element-box" id="el4"></div>
-      <div class="element-box" id="el5"></div>
-      <div class="element-box" id="el6"></div>
+      <div class="tech-row">
+        <span id="labelCol2">EXECUTION (GOE)</span>
+        <span class="tech-value" id="goeScore">+1.18</span>
+      </div>
     </div>
   </div>
 
@@ -212,48 +158,50 @@
     channel.onmessage = (event) => {
       const data = event.data;
       const bug = document.getElementById('bug');
-      const rowsContainer = document.getElementById('rowsContainer');
       const leaderRow = document.getElementById('leaderRow');
 
       if (data.visible) {
         document.getElementById('eventTitle').innerText = data.eventTitle || "WOMEN'S FREE SKATING";
         
-        const currentTotal = parseFloat(data.totalScore || 0);
-        const leaderTotal = parseFloat(data.leaderScore || 0);
-
+        // Gestione Leader
         if (data.isFirstAthlete) {
-          leaderRow.style.display = 'none';
-          rowsContainer.classList.remove('overtaken');
+          leaderRow.classList.add('hidden');
         } else {
-          leaderRow.style.display = 'flex';
+          leaderRow.classList.remove('hidden');
           document.getElementById('leaderCountry').innerText = data.leaderCountry || '';
-          document.getElementById('leaderFlag').src = `https://flagcdn.com/w80/${(data.leaderFlag || 'it').toLowerCase()}.png`;
+          document.getElementById('leaderFlag').src = `https://flagcdn.com/w80/${(data.leaderFlag || 'cn').toLowerCase()}.png`;
           document.getElementById('leaderName').innerText = data.leaderName || '';
-          document.getElementById('leaderScore').innerText = leaderTotal.toFixed(2);
-
-          // VERIFICA SORPASSO AUTOMATICO
-          if (currentTotal > leaderTotal) {
-            rowsContainer.classList.add('overtaken');
-          } else {
-            rowsContainer.classList.remove('overtaken');
-          }
+          document.getElementById('leaderScore').innerText = data.leaderScore || '';
         }
 
         document.getElementById('currentCountry').innerText = data.currentCountry || '';
-        document.getElementById('currentFlag').src = `https://flagcdn.com/w80/${(data.currentFlag || 'jp').toLowerCase()}.png`;
+        document.getElementById('currentFlag').src = `https://flagcdn.com/w80/${(data.currentFlag || 'it').toLowerCase()}.png`;
         document.getElementById('currentName').innerText = data.currentName || '';
-        document.getElementById('currentScore').innerText = currentTotal.toFixed(2);
-        
-        const curBase = parseFloat(data.currentBase || 0);
-        const curGoe = parseFloat(data.currentGoe || 0);
-        document.getElementById('baseScore').innerText = curBase.toFixed(2);
-        document.getElementById('goeScore').innerText = (curGoe >= 0 ? '+' : '') + curGoe.toFixed(2);
 
-        if (data.elementStates && Array.isArray(data.elementStates)) {
-          data.elementStates.forEach((state, index) => {
-            const box = document.getElementById(`el${index}`);
-            if (box) box.className = 'element-box ' + state;
-          });
+        // Modalità (Elemento Singolo vs Punteggio Totale Segmento Free/Short)
+        if (data.mode === 'total') {
+          document.getElementById('scoreTypeTitle').innerText = "TOTAL SEGMENT SCORE";
+          document.getElementById('currentElementLabel').innerText = data.elementLabel || "";
+          document.getElementById('labelCol1').innerText = "TES (TECH)";
+          document.getElementById('labelCol2').innerText = "PCS (COMP)";
+          
+          const tes = parseFloat(data.baseScore || 0);
+          const pcs = parseFloat(data.goeScore || 0);
+          document.getElementById('baseScore').innerText = tes.toFixed(2);
+          document.getElementById('goeScore').innerText = pcs.toFixed(2);
+          document.getElementById('currentScore').innerText = (tes + pcs).toFixed(2);
+        } else {
+          // Modalità Elemento Singolo (Default)
+          document.getElementById('scoreTypeTitle').innerText = "TECHNICAL SCORE";
+          document.getElementById('currentElementLabel').innerText = data.elementLabel || "";
+          document.getElementById('labelCol1').innerText = "BASE";
+          document.getElementById('labelCol2').innerText = "EXECUTION (GOE)";
+
+          const base = parseFloat(data.baseScore || 0);
+          const goe = parseFloat(data.goeScore || 0);
+          document.getElementById('baseScore').innerText = base.toFixed(2);
+          document.getElementById('goeScore').innerText = (goe >= 0 ? '+' : '') + goe.toFixed(2);
+          document.getElementById('currentScore').innerText = (base + goe).toFixed(2);
         }
 
         if (data.isCompact) {
@@ -266,10 +214,6 @@
       } else {
         bug.classList.remove('active');
       }
-    };
-  </script>
-</body>
-</html>
     };
   </script>
 </body>
