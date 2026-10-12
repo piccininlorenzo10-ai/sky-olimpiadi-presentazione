@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Sky Winter Games - Lower Third Fratello (CAM 2)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      font-family: 'Montserrat', sans-serif;
+      background: transparent;
+    }
+
+    /* Contenitore posizionato in basso a destra, allineato a destra */
+    .lower-third-brother {
+      position: absolute;
+      bottom: 60px;
+      right: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      /* Animazione di comparsa che arriva da destra */
+      animation: slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes slideInRight {
+      0% { transform: translateX(100px); opacity: 0; }
+      100% { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Riga Principale (Nome / Telecamera) */
+    .name-box-bro {
+      display: inline-flex;
+      align-items: center;
+      background: linear-gradient(135deg, #030a14 0%, #091726 100%);
+      border-right: 6px solid #38b6ff;
+      border-top: 1px solid rgba(56, 182, 255, 0.4);
+      border-left: 1px solid rgba(56, 182, 255, 0.2);
+      border-bottom: 1px solid rgba(56, 182, 255, 0.2);
+      padding: 12px 28px;
+      border-radius: 10px 0 0 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+    }
+
+    .brother-title {
+      color: #ffffff;
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* Riga Secondaria (Ruolo / Dettaglio) */
+    .role-box-bro {
+      display: inline-flex;
+      align-items: center;
+      background: linear-gradient(135deg, #0077ff 0%, #38b6ff 100%);
+      padding: 6px 20px;
+      border-radius: 8px 0 0 8px;
+      width: fit-content;
+      box-shadow: 0 5px 15px rgba(0, 119, 255, 0.4);
+    }
+
+    .brother-role {
+      color: #040d18;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="lower-third-brother" id="lowerBrother">
+    <div class="name-box-bro">
+      <span class="brother-title" id="broTitleText">SECONDA CAMERA</span>
+    </div>
+    <div class="role-box-bro">
+      <span class="brother-role" id="broRoleText">POV PISTA • SECONDARY FEED</span>
+    </div>
+  </div>
+
+  <script>
+    // BroadcastChannel per eventuali modifiche remote al volo
+    const channel = new BroadcastChannel('sky_brother_lower_channel');
+    channel.onmessage = (e) => {
+      if (e.data) {
+        if (e.data.title) document.getElementById('broTitleText').innerText = e.data.title;
+        if (e.data.role) document.getElementById('broRoleText').innerText = e.data.role;
+        
+        const el = document.getElementById('lowerBrother');
+        if (e.data.visible === false) {
+          el.style.opacity = '0';
+          el.style.transform = 'translateY(20px)';
+          el.style.transition = 'all 0.5s ease';
+        } else {
+          el.style.opacity = '1';
+          el.style.transform = 'translateY(0)';
+        }
+      }
+    };
+  </script>
+</body>
+</html>
