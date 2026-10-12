@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Sky Winter Games - Lower Third Presentatore</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      font-family: 'Montserrat', sans-serif;
+      background: transparent;
+    }
+
+    /* Contenitore posizionato in basso a sinistra */
+    .lower-third-container {
+      position: absolute;
+      bottom: 60px;
+      left: 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      /* Animazione di comparsa iniziale */
+      animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes slideIn {
+      0% { transform: translateX(-100px); opacity: 0; }
+      100% { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Riga Principale (Nome) */
+    .name-box {
+      display: inline-flex;
+      align-items: center;
+      background: linear-gradient(135deg, #091726 0%, #030a14 100%);
+      border-left: 6px solid #38b6ff;
+      border-top: 1px solid rgba(56, 182, 255, 0.4);
+      border-right: 1px solid rgba(56, 182, 255, 0.2);
+      border-bottom: 1px solid rgba(56, 182, 255, 0.2);
+      padding: 12px 28px;
+      border-radius: 0 10px 10px 0;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+    }
+
+    .presenter-name {
+      color: #ffffff;
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* Riga Secondaria (Ruolo / Categoria) */
+    .role-box {
+      display: inline-flex;
+      align-items: center;
+      background: linear-gradient(135deg, #38b6ff 0%, #0077ff 100%);
+      padding: 6px 20px;
+      border-radius: 0 8px 8px 0;
+      width: fit-content;
+      box-shadow: 0 5px 15px rgba(0, 119, 255, 0.4);
+    }
+
+    .presenter-role {
+      color: #040d18;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="lower-third-container" id="lowerThird">
+    <div class="name-box">
+      <span class="presenter-name" id="nameText">Conduttore e Presentatore</span>
+    </div>
+    <div class="role-box">
+      <span class="presenter-role" id="roleText">LEAD CASTER • SKY WINTER GAMES</span>
+    </div>
+  </div>
+
+  <script>
+    // Se vuoi personalizzarlo al volo tramite un BroadcastChannel o parametri nell'URL
+    const channel = new BroadcastChannel('sky_lower_third_channel');
+    channel.onmessage = (e) => {
+      if (e.data) {
+        if (e.data.name) document.getElementById('nameText').innerText = e.data.name;
+        if (e.data.role) document.getElementById('roleText').innerText = e.data.role;
+        
+        // Gestione comparsa/scomparsa
+        const el = document.getElementById('lowerStatus');
+        if (e.data.visible === false) {
+          document.getElementById('lowerThird').style.opacity = '0';
+          document.getElementById('lowerThird').style.transform = 'translateY(20px)';
+          document.getElementById('lowerThird').style.transition = 'all 0.5s ease';
+        } else {
+          document.getElementById('lowerThird').style.opacity = '1';
+          document.getElementById('lowerThird').style.transform = 'translateY(0)';
+        }
+      }
+    };
+  </script>
+</body>
+</html>
