@@ -244,13 +244,13 @@
   <div class="regia-header">
     <div class="brand-title">
       <h1>📺 Sky Winter Games - Pannello Regia</h1>
-      <span>Gestione Iscrizioni & Check-in in Tempo Reale</span>
+      <span>Gestione Iscrizioni & Check-in in Tempo Reale (Cloud)</span>
     </div>
 
     <div class="controls-bar">
       <div id="statusPill" class="status-pill status-active">🟢 Iscrizioni Aperte</div>
-      <button class="btn-ctrl btn-start" onclick="toggleRegistrations(true)">▶️ Avvia</button>
-      <button class="btn-ctrl btn-stop" onclick="toggleRegistrations(false)">⏹️ Termina</button>
+      <button class="btn-ctrl btn-start" onclick="toggleReg(true)">▶️ Avvia</button>
+      <button class="btn-ctrl btn-stop" onclick="toggleReg(false)">⏹️ Termina</button>
       <button class="btn-ctrl btn-clear" onclick="resetAll()">🗑️ Svuota</button>
     </div>
   </div>
@@ -299,12 +299,32 @@
     </div>
   </div>
 
-  <script>
-    const channel = new BroadcastChannel('sky_registration_channel');
-    let isRegistrationOpen = true;
+  <!-- SCRIPT FIREBASE REGIA -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+    import { getDatabase, ref, set, onChildAdded, remove, onValue } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-database.js";
 
-    function toggleRegistrations(isOpen) {
-      isRegistrationOpen = isOpen;
+    const firebaseConfig = {
+      apiKey: "AIzaSyBE3vshWByNYVi7_wosyKcGhbEXej8D4Vw",
+      authDomain: "iscrizionisky.firebaseapp.com",
+      databaseURL: "https://iscrizionisky-default-rtdb.firebaseio.com",
+      projectId: "iscrizionisky",
+      storageBucket: "iscrizionisky.firebasestorage.app",
+      messagingSenderId: "732347868566",
+      appId: "1:732347868566:web:e54a633a932c750698a9b7",
+      measurementId: "G-9LMFZJCKC7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Controlla apertura/chiusura iscrizioni
+    window.toggleReg = function(isOpen) {
+      set(ref(db, 'regiaStatus/isOpen'), isOpen);
+    };
+
+    onValue(ref(db, 'regiaStatus/isOpen'), (snapshot) => {
+      const isOpen = snapshot.val() !== false;
       const pill = document.getElementById('statusPill');
       if (isOpen) {
         pill.className = 'status-pill status-active';
@@ -313,41 +333,39 @@
         pill.className = 'status-pill status-closed';
         pill.innerText = '🔴 Iscrizioni Chiuse';
       }
-      channel.postMessage({ type: 'STATUS_CHANGE', isOpen: isOpen });
-    }
+    });
 
-    channel.onmessage = (e) => {
-      if (!e.data) return;
-      if (e.data.type === 'NEW_REGISTRATION' && isRegistrationOpen) {
-        addAthleteToUI(e.data);
+    // Ascolta nuove iscrizioni in tempo reale dal database cloud
+    onChildAdded(ref(db, 'registrations'), (snapshot) => {
+      const data = snapshot.val();
+      const key = snapshot.key;
+      if (data) {
+        addAthleteToUI(data, key);
       }
-    };
+    });
 
-    function addAthleteToUI(data) {
-      const cardId = 'ath-' + Date.now() + '-' + Math.floor(Math.random()*1000);
-      const passCode = data.passCode || ('SKY-' + (data.discipline === 'Pattinaggio' ? 'PAT' : 'SCI') + '-' + Math.floor(1000 + Math.random() * 9000));
-
+    function addAthleteToUI(data, key) {
       if (data.discipline === 'Pattinaggio') {
-        createCard('listPattinaggio', 'empPat', cardId, data.name, data.team, 'Short + Free Program', passCode);
+        createCard('listPattinaggio', 'empPat', key, data.name, data.team, 'Short + Free Program', data.passCode);
       } else if (data.categoryType === 'SCI_CORTO') {
-        createCard('listSciCorto', 'empSciCorto', cardId, data.name, data.team, 'Percorso Corto', passCode);
+        createCard('listSciCorto', 'empSciCorto', key, data.name, data.team, 'Percorso Corto', data.passCode);
       } else if (data.categoryType === 'SCI_LUNGO') {
-        createCard('listSciLungo', 'empSciLungo', cardId, data.name, data.team, 'Percorso Lungo', passCode);
+        createCard('listSciLungo', 'empSciLungo', key, data.name, data.team, 'Percorso Lungo', data.passCode);
       } else if (data.categoryType === 'SCI_ENTRAMBI') {
-        createCard('listSciCorto', 'empSciCorto', cardId + '-c', data.name, data.team, 'Percorso Corto (Doppio)', passCode);
-        createCard('listSciLungo', 'empSciLungo', cardId + '-l', data.name, data.team, 'Percorso Lungo (Doppio)', passCode);
+        createCard('listSciCorto', 'empSciCorto', key + '-c', data.name, data.team, 'Percorso Corto (Doppio)', data.passCode);
+        createCard('listSciLungo', 'empSciLungo', key + '-l', data.name, data.team, 'Percorso Lungo (Doppio)', data.passCode);
       }
       updateCounts();
     }
 
-    function createCard(containerId, emptyMsgId, cardId, name, team, badgeText, passCode) {
+    function createCard(containerId, emptyMsgId, key, name, team, badgeText, passCode) {
       const container = document.getElementById(containerId);
       const emptyMsg = document.getElementById(emptyMsgId);
       if (emptyMsg) emptyMsg.style.display = 'none';
 
       const card = document.createElement('div');
       card.className = 'athlete-card';
-      card.id = cardId;
+      card.id = 'card-' + key;
       card.setAttribute('data-code', passCode);
       card.innerHTML = `
         <div class="ath-details">
@@ -357,27 +375,24 @@
           <span class="ath-status" style="color: #ca8a04;">⏳ In attesa di check-in</span>
         </div>
         <div class="actions-group">
-          <button class="btn-verify" onclick="verifyCard('${cardId}')">Conferma ✅</button>
-          <button class="btn-remove" onclick="removeAthlete('${cardId}', '${containerId}', '${emptyMsgId}')">Togli 🗑️</button>
+          <button class="btn-verify" onclick="verifyCard('card-${key}')">Conferma ✅</button>
+          <button class="btn-remove" onclick="removeAthlete('${key}', '${containerId}', '${emptyMsgId}')">Togli 🗑️</button>
         </div>
       `;
       container.prepend(card);
     }
 
-    // Funzione per verificare tramite la barra di ricerca in alto
-    function verifyPassCode() {
+    window.verifyPassCode = function() {
       const input = document.getElementById('searchCodeInput');
       const code = input.value.trim().toUpperCase();
       const resultBox = document.getElementById('checkinResult');
-
       if (!code) return;
 
       const cards = document.querySelectorAll('.athlete-card');
       let found = false;
 
       cards.forEach(card => {
-        const cardCode = card.getAttribute('data-code');
-        if (cardCode === code) {
+        if (card.getAttribute('data-code') === code) {
           found = true;
           markCardAsVerified(card);
           resultBox.style.display = 'block';
@@ -394,13 +409,12 @@
         resultBox.style.color = '#be123c';
         resultBox.innerText = `❌ Nessun atleta trovato con il codice "${code}".`;
       }
-    }
+    };
 
-    // Funzione click diretto sul pulsante della scheda
-    function verifyCard(cardId) {
-      const card = document.getElementById(cardId);
+    window.verifyCard = function(cardDivId) {
+      const card = document.getElementById(cardDivId);
       if (card) markCardAsVerified(card);
-    }
+    };
 
     function markCardAsVerified(card) {
       card.classList.add('verified');
@@ -411,26 +425,27 @@
       if (verifyBtn) verifyBtn.remove();
     }
 
-    function removeAthlete(cardId, containerId, emptyMsgId) {
-      const card = document.getElementById(cardId);
-      if (card) {
-        card.remove();
-        const container = document.getElementById(containerId);
-        if (container.querySelectorAll('.athlete-card').length === 0) {
-          document.getElementById(emptyMsgId).style.display = 'block';
-        }
-        updateCounts();
+    window.removeAthlete = function(key, containerId, emptyMsgId) {
+      remove(ref(db, 'registrations/' + key));
+      const card = document.getElementById('card-' + key);
+      if (card) card.remove();
+      
+      const container = document.getElementById(containerId);
+      if (container.querySelectorAll('.athlete-card').length === 0) {
+        document.getElementById(emptyMsgId).style.display = 'block';
       }
-    }
+      updateCounts();
+    };
 
-    function resetAll() {
+    window.resetAll = function() {
       if (confirm("Vuoi davvero svuotare tutte le iscrizioni?")) {
+        set(ref(db, 'registrations'), null);
         document.getElementById('listPattinaggio').innerHTML = '<div class="empty-msg" id="empPat">Nessun iscritto al momento</div>';
         document.getElementById('listSciCorto').innerHTML = '<div class="empty-msg" id="empSciCorto">Nessun iscritto al momento</div>';
         document.getElementById('listSciLungo').innerHTML = '<div class="empty-msg" id="empSciLungo">Nessun iscritto al momento</div>';
         updateCounts();
       }
-    }
+    };
 
     function updateCounts() {
       document.getElementById('countPat').innerText = document.getElementById('listPattinaggio').querySelectorAll('.athlete-card').length;
