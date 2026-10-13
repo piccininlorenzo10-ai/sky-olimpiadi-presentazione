@@ -267,15 +267,58 @@
   </div>
 
   <script>
+    let isRegistrationOpen = true;
+    const channel = new BroadcastChannel('sky_registration_channel');
+
+    // Ascolta la chiusura/apertura dalla regia
+    channel.onmessage = (e) => {
+      if (!e.data) return;
+      if (e.data.type === 'STATUS_CHANGE') {
+        isRegistrationOpen = e.data.isOpen;
+        updateFormStatus();
+      }
+    };
+
+    function updateFormStatus() {
+      const submitBtn = document.querySelector('.btn-submit');
+      const formSection = document.getElementById('formSection');
+
+      if (!isRegistrationOpen) {
+        submitBtn.disabled = true;
+        submitBtn.style.background = '#cbd5e1';
+        submitBtn.style.cursor = 'not-allowed';
+        submitBtn.innerText = '🔒 Iscrizioni Chiuse dalla Regia';
+
+        if (!document.getElementById('closedNotice')) {
+          const notice = document.createElement('div');
+          notice.id = 'closedNotice';
+          notice.style.cssText = 'background: #ffe4e6; border: 2px dashed #fb7185; color: #be123c; padding: 12px; border-radius: 18px; text-align: center; margin-bottom: 15px; font-weight: 700; font-size: 13px;';
+          notice.innerText = '❌ Le iscrizioni per gli Sky Winter Games sono attualmente chiuse!';
+          formSection.insertBefore(notice, document.getElementById('regForm'));
+        }
+      } else {
+        submitBtn.disabled = false;
+        submitBtn.style.background = 'linear-gradient(135deg, #38b6ff 0%, #7dd3fc 100%)';
+        submitBtn.style.cursor = 'pointer';
+        submitBtn.innerText = 'Conferma Iscrizione Sky ✨';
+
+        const notice = document.getElementById('closedNotice');
+        if (notice) notice.remove();
+      }
+    }
+
     function handleDisciplineChange() {
       const disc = document.getElementById('discipline').value;
       document.getElementById('sciOptions').style.display = (disc === 'Sci') ? 'block' : 'none';
     }
 
-    const channel = new BroadcastChannel('sky_registration_channel');
-
     document.getElementById('regForm').addEventListener('submit', (e) => {
       e.preventDefault();
+
+      if (!isRegistrationOpen) {
+        alert("Spiacenti, le iscrizioni sono chiuse dalla regia!");
+        return;
+      }
 
       const name = document.getElementById('athleteName').value;
       const team = document.getElementById('teamName').value;
@@ -292,7 +335,7 @@
         categoryType = "PATTINAGGIO";
         passBox.innerHTML = `
           <div class="athlete-pass pass-pattinaggio">
-            <span class="pass-header-tag">⛸️ Official Pass • Pattinaggio</span>
+            <span class="pass-header-tag">0 Official Pass • Pattinaggio</span>
             <div class="pass-title">Pass Atleta: Short + Free Program</div>
             <div class="pass-info-grid">
               <div class="info-item">Atleta: <b>${name}</b></div>
