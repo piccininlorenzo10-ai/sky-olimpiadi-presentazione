@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Sky Winter Games - Dashboard Regia Iscrizioni</title>
+  <title>Sky Winter Games - Pannello Regia Iscrizioni</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Mali:wght@600;700&display=swap');
 
@@ -27,7 +27,7 @@
       justify-content: space-between;
       align-items: center;
       box-shadow: 0 10px 25px rgba(125, 211, 252, 0.3);
-      margin-bottom: 30px;
+      margin-bottom: 20px;
     }
 
     .brand-title h1 {
@@ -83,6 +83,54 @@
     .status-active { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
     .status-closed { background: #ffe4e6; color: #9f1239; border: 1px solid #fecdd3; }
 
+    /* BARRA CHECK-IN / CONFERMA CODICE PASS */
+    .checkin-bar {
+      background: rgba(255, 255, 255, 0.9);
+      border: 3px solid #38b6ff;
+      border-radius: 20px;
+      padding: 15px 25px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      box-shadow: 0 8px 20px rgba(56, 182, 255, 0.2);
+      margin-bottom: 25px;
+    }
+
+    .checkin-bar input {
+      flex: 1;
+      padding: 12px 18px;
+      border: 2px solid #cbd5e1;
+      border-radius: 15px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .checkin-bar input:focus { border-color: #38b6ff; box-shadow: 0 0 10px rgba(56,182,255,0.4); }
+
+    .btn-checkin {
+      background: linear-gradient(135deg, #38b6ff 0%, #7dd3fc 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 15px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(56,182,255,0.4);
+    }
+
+    .btn-checkin:hover { transform: translateY(-2px); }
+
+    #checkinResult {
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 12px;
+      display: none;
+    }
+
     /* GRIGLIA A 3 COLONNE */
     .grid-3 {
       display: grid;
@@ -100,15 +148,12 @@
       flex-direction: column;
     }
 
-    /* COLONNA PATTINAGGIO */
     .col-pattinaggio { border: 3px solid #7dd3fc; }
     .col-pattinaggio .col-title { color: #0284c7; }
 
-    /* COLONNA SCI CORTO */
     .col-sci-corto { border: 3px solid #fde047; }
     .col-sci-corto .col-title { color: #ca8a04; }
 
-    /* COLONNA SCI LUNGO */
     .col-sci-lungo { border: 3px solid #a5b4fc; }
     .col-sci-lungo .col-title { color: #4f46e5; }
 
@@ -140,7 +185,7 @@
       min-height: 200px;
     }
 
-    /* SCHEDA ATLETA CON PULSANTE "TOGLI" */
+    /* SCHEDA ATLETA */
     .athlete-card {
       background: #ffffff;
       border-radius: 18px;
@@ -150,42 +195,47 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      animation: popIn 0.3s ease forwards;
+      transition: all 0.3s ease;
     }
 
-    @keyframes popIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
+    .athlete-card.verified {
+      border: 2px solid #22c55e;
+      background: #f0fdf4;
     }
 
     .ath-details { display: flex; flex-direction: column; gap: 2px; }
     .ath-name { font-weight: 700; font-size: 15px; color: #0f172a; }
     .ath-team { font-size: 12px; color: #64748b; }
-    .ath-sub { font-size: 11px; color: #38b6ff; font-weight: 700; }
+    .ath-code { font-size: 11px; color: #0284c7; font-weight: 700; background: #e0f2fe; padding: 2px 6px; border-radius: 6px; width: fit-content; margin-top: 2px; }
+    .ath-status { font-size: 10px; font-weight: 700; margin-top: 3px; }
+
+    .actions-group { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+
+    .btn-verify {
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #86efac;
+      padding: 5px 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-verify:hover { background: #bbf7d0; }
 
     .btn-remove {
       background: #fff1f2;
       color: #e11d48;
       border: 1px solid #fecdd3;
-      padding: 6px 12px;
-      border-radius: 12px;
-      font-size: 12px;
+      padding: 5px 10px;
+      border-radius: 10px;
+      font-size: 11px;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s ease;
     }
+    .btn-remove:hover { background: #ffe4e6; }
 
-    .btn-remove:hover {
-      background: #ffe4e6;
-      transform: scale(1.05);
-    }
-
-    .empty-msg {
-      text-align: center;
-      color: #94a3b8;
-      font-size: 13px;
-      margin-top: 40px;
-    }
+    .empty-msg { text-align: center; color: #94a3b8; font-size: 13px; margin-top: 40px; }
   </style>
 </head>
 <body>
@@ -194,15 +244,23 @@
   <div class="regia-header">
     <div class="brand-title">
       <h1>📺 Sky Winter Games - Pannello Regia</h1>
-      <span>Gestione Iscrizioni in Tempo Reale • Azzurro Pastello</span>
+      <span>Gestione Iscrizioni & Check-in in Tempo Reale</span>
     </div>
 
     <div class="controls-bar">
       <div id="statusPill" class="status-pill status-active">🟢 Iscrizioni Aperte</div>
-      <button class="btn-ctrl btn-start" onclick="toggleRegistrations(true)">▶️ Avvia Iscrizioni</button>
-      <button class="btn-ctrl btn-stop" onclick="toggleRegistrations(false)">⏹️ Termina Iscrizioni</button>
-      <button class="btn-ctrl btn-clear" onclick="resetAll()">🗑️ Svuota Liste</button>
+      <button class="btn-ctrl btn-start" onclick="toggleRegistrations(true)">▶️ Avvia</button>
+      <button class="btn-ctrl btn-stop" onclick="toggleRegistrations(false)">⏹️ Termina</button>
+      <button class="btn-ctrl btn-clear" onclick="resetAll()">🗑️ Svuota</button>
     </div>
+  </div>
+
+  <!-- BARRA CHECK-IN ATLETA -->
+  <div class="checkin-bar">
+    <span style="font-weight: 700; color: #0284c7; font-size: 15px;">🔍 Check-in Atleta:</span>
+    <input type="text" id="searchCodeInput" placeholder="Inserisci il Codice Pass (es. SKY-PAT-1234)" onkeypress="if(event.key === 'Enter') verifyPassCode()">
+    <button class="btn-checkin" onclick="verifyPassCode()">Conferma Pass ✅</button>
+    <div id="checkinResult"></div>
   </div>
 
   <!-- GRIGLIA 3 SEZIONI -->
@@ -245,11 +303,9 @@
     const channel = new BroadcastChannel('sky_registration_channel');
     let isRegistrationOpen = true;
 
-    // Gestione Stato Iscrizioni (Aperte / Chiuse)
     function toggleRegistrations(isOpen) {
       isRegistrationOpen = isOpen;
       const pill = document.getElementById('statusPill');
-      
       if (isOpen) {
         pill.className = 'status-pill status-active';
         pill.innerText = '🟢 Iscrizioni Aperte';
@@ -257,38 +313,34 @@
         pill.className = 'status-pill status-closed';
         pill.innerText = '🔴 Iscrizioni Chiuse';
       }
-
-      // Comunica lo stato al modulo iscrizioni degli utenti
       channel.postMessage({ type: 'STATUS_CHANGE', isOpen: isOpen });
     }
 
-    // Ricezione Iscrizioni in tempo reale
     channel.onmessage = (e) => {
       if (!e.data) return;
-
       if (e.data.type === 'NEW_REGISTRATION' && isRegistrationOpen) {
         addAthleteToUI(e.data);
       }
     };
 
     function addAthleteToUI(data) {
-      const id = 'ath-' + Date.now() + '-' + Math.floor(Math.random()*1000);
+      const cardId = 'ath-' + Date.now() + '-' + Math.floor(Math.random()*1000);
+      const passCode = data.passCode || ('SKY-' + (data.discipline === 'Pattinaggio' ? 'PAT' : 'SCI') + '-' + Math.floor(1000 + Math.random() * 9000));
 
       if (data.discipline === 'Pattinaggio') {
-        createCard('listPattinaggio', 'empPat', id, data.name, data.team, 'Short + Free Program');
+        createCard('listPattinaggio', 'empPat', cardId, data.name, data.team, 'Short + Free Program', passCode);
       } else if (data.categoryType === 'SCI_CORTO') {
-        createCard('listSciCorto', 'empSciCorto', id, data.name, data.team, 'Percorso Corto');
+        createCard('listSciCorto', 'empSciCorto', cardId, data.name, data.team, 'Percorso Corto', passCode);
       } else if (data.categoryType === 'SCI_LUNGO') {
-        createCard('listSciLungo', 'empSciLungo', id, data.name, data.team, 'Percorso Lungo');
+        createCard('listSciLungo', 'empSciLungo', cardId, data.name, data.team, 'Percorso Lungo', passCode);
       } else if (data.categoryType === 'SCI_ENTRAMBI') {
-        createCard('listSciCorto', 'empSciCorto', id + '-c', data.name, data.team, 'Percorso Corto (Doppio)');
-        createCard('listSciLungo', 'empSciLungo', id + '-l', data.name, data.team, 'Percorso Lungo (Doppio)');
+        createCard('listSciCorto', 'empSciCorto', cardId + '-c', data.name, data.team, 'Percorso Corto (Doppio)', passCode);
+        createCard('listSciLungo', 'empSciLungo', cardId + '-l', data.name, data.team, 'Percorso Lungo (Doppio)', passCode);
       }
-
       updateCounts();
     }
 
-    function createCard(containerId, emptyMsgId, cardId, name, team, badgeText) {
+    function createCard(containerId, emptyMsgId, cardId, name, team, badgeText, passCode) {
       const container = document.getElementById(containerId);
       const emptyMsg = document.getElementById(emptyMsgId);
       if (emptyMsg) emptyMsg.style.display = 'none';
@@ -296,19 +348,69 @@
       const card = document.createElement('div');
       card.className = 'athlete-card';
       card.id = cardId;
+      card.setAttribute('data-code', passCode);
       card.innerHTML = `
         <div class="ath-details">
           <span class="ath-name">${name}</span>
           <span class="ath-team">Team: ${team}</span>
-          <span class="ath-sub">✨ ${badgeText}</span>
+          <span class="ath-code">🎟️ ${passCode}</span>
+          <span class="ath-status" style="color: #ca8a04;">⏳ In attesa di check-in</span>
         </div>
-        <button class="btn-remove" onclick="removeAthlete('${cardId}', '${containerId}', '${emptyMsgId}')">Togli 🗑️</button>
+        <div class="actions-group">
+          <button class="btn-verify" onclick="verifyCard('${cardId}')">Conferma ✅</button>
+          <button class="btn-remove" onclick="removeAthlete('${cardId}', '${containerId}', '${emptyMsgId}')">Togli 🗑️</button>
+        </div>
       `;
-
       container.prepend(card);
     }
 
-    // Funzione "Togli" Singolo Atleta
+    // Funzione per verificare tramite la barra di ricerca in alto
+    function verifyPassCode() {
+      const input = document.getElementById('searchCodeInput');
+      const code = input.value.trim().toUpperCase();
+      const resultBox = document.getElementById('checkinResult');
+
+      if (!code) return;
+
+      const cards = document.querySelectorAll('.athlete-card');
+      let found = false;
+
+      cards.forEach(card => {
+        const cardCode = card.getAttribute('data-code');
+        if (cardCode === code) {
+          found = true;
+          markCardAsVerified(card);
+          resultBox.style.display = 'block';
+          resultBox.style.background = '#dcfce7';
+          resultBox.style.color = '#15803d';
+          resultBox.innerText = `✅ Atleta con codice ${code} confermato con successo!`;
+          input.value = '';
+        }
+      });
+
+      if (!found) {
+        resultBox.style.display = 'block';
+        resultBox.style.background = '#ffe4e6';
+        resultBox.style.color = '#be123c';
+        resultBox.innerText = `❌ Nessun atleta trovato con il codice "${code}".`;
+      }
+    }
+
+    // Funzione click diretto sul pulsante della scheda
+    function verifyCard(cardId) {
+      const card = document.getElementById(cardId);
+      if (card) markCardAsVerified(card);
+    }
+
+    function markCardAsVerified(card) {
+      card.classList.add('verified');
+      const statusSpan = card.querySelector('.ath-status');
+      statusSpan.style.color = '#15803d';
+      statusSpan.innerText = '🟢 Presente & Confermato';
+      const verifyBtn = card.querySelector('.btn-verify');
+      if (verifyBtn) verifyBtn.remove();
+    }
+
     function removeAthlete(cardId, containerId, emptyMsgId) {
       const card = document.getElementById(cardId);
       if (card) {
@@ -321,7 +423,6 @@
       }
     }
 
-    // Svuota Liste
     function resetAll() {
       if (confirm("Vuoi davvero svuotare tutte le iscrizioni?")) {
         document.getElementById('listPattinaggio').innerHTML = '<div class="empty-msg" id="empPat">Nessun iscritto al momento</div>';
@@ -331,7 +432,6 @@
       }
     }
 
-    // Aggiorna Contatori
     function updateCounts() {
       document.getElementById('countPat').innerText = document.getElementById('listPattinaggio').querySelectorAll('.athlete-card').length;
       document.getElementById('countSciCorto').innerText = document.getElementById('listSciCorto').querySelectorAll('.athlete-card').length;
