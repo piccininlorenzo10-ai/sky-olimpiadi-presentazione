@@ -266,18 +266,32 @@
     </div>
   </div>
 
-  <script>
-    let isRegistrationOpen = true;
-    const channel = new BroadcastChannel('sky_registration_channel');
+  <!-- SCRIPT FIREBASE UTENTE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-database.js";
 
-    // Ascolta la chiusura/apertura dalla regia
-    channel.onmessage = (e) => {
-      if (!e.data) return;
-      if (e.data.type === 'STATUS_CHANGE') {
-        isRegistrationOpen = e.data.isOpen;
-        updateFormStatus();
-      }
+    const firebaseConfig = {
+      apiKey: "AIzaSyBE3vshWByNYVi7_wosyKcGhbEXej8D4Vw",
+      authDomain: "iscrizionisky.firebaseapp.com",
+      databaseURL: "https://iscrizionisky-default-rtdb.firebaseio.com",
+      projectId: "iscrizionisky",
+      storageBucket: "iscrizionisky.firebasestorage.app",
+      messagingSenderId: "732347868566",
+      appId: "1:732347868566:web:e54a633a932c750698a9b7",
+      measurementId: "G-9LMFZJCKC7"
     };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let isRegistrationOpen = true;
+
+    // Ascolta se la regia chiude le iscrizioni in tempo reale
+    onValue(ref(db, 'regiaStatus/isOpen'), (snapshot) => {
+      isRegistrationOpen = snapshot.val() !== false;
+      updateFormStatus();
+    });
 
     function updateFormStatus() {
       const submitBtn = document.querySelector('.btn-submit');
@@ -307,10 +321,10 @@
       }
     }
 
-    function handleDisciplineChange() {
+    window.handleDisciplineChange = function() {
       const disc = document.getElementById('discipline').value;
       document.getElementById('sciOptions').style.display = (disc === 'Sci') ? 'block' : 'none';
-    }
+    };
 
     document.getElementById('regForm').addEventListener('submit', (e) => {
       e.preventDefault();
@@ -324,6 +338,7 @@
       const team = document.getElementById('teamName').value;
       const disc = document.getElementById('discipline').value;
       const track = document.getElementById('sciTrack').value;
+      const passCode = 'SKY-' + (disc === 'Pattinaggio' ? 'PAT' : 'SCI') + '-' + Math.floor(1000 + Math.random() * 9000);
 
       document.getElementById('formSection').style.display = 'none';
       document.getElementById('confirmationSection').style.display = 'block';
@@ -335,19 +350,17 @@
         categoryType = "PATTINAGGIO";
         passBox.innerHTML = `
           <div class="athlete-pass pass-pattinaggio">
-            <span class="pass-header-tag">0 Official Pass • Pattinaggio</span>
+            <span class="pass-header-tag">⛸️ Official Pass • Pattinaggio</span>
             <div class="pass-title">Pass Atleta: Short + Free Program</div>
             <div class="pass-info-grid">
               <div class="info-item">Atleta: <b>${name}</b></div>
               <div class="info-item">Team: <b>${team}</b></div>
-              <div class="info-item">Programmi: <b>Short & Free</b></div>
-              <div class="info-item">Codice Pass: <b>SKY-PAT-${Math.floor(1000 + Math.random() * 9000)}</b></div>
+              <div class="info-item">Codice Pass: <b>${passCode}</b></div>
             </div>
             <div class="pass-instructions">
               <b>📌 Guida & Regolamento Gara:</b>
               <ul>
                 <li>Sei iscritto sia allo <b>Short Program</b> che al <b>Free Program</b>.</li>
-                <li>Punteggio calcolato su Elementi Tecnici (TES) + Componenti (PCS).</li>
                 <li>Presentati in regia 10 minuti prima per la prova audio/musica.</li>
               </ul>
             </div>
@@ -363,14 +376,12 @@
             <div class="pass-info-grid">
               <div class="info-item">Atleta: <b>${name}</b></div>
               <div class="info-item">Team: <b>${team}</b></div>
-              <div class="info-item">Tracciato: <b>Sprint Track</b></div>
-              <div class="info-item">Codice Pass: <b>SKY-SC-${Math.floor(1000 + Math.random() * 9000)}</b></div>
+              <div class="info-item">Codice Pass: <b>${passCode}</b></div>
             </div>
             <div class="pass-instructions">
               <b>📌 Guida & Regolamento Gara:</b>
               <ul>
                 <li>Tracciato veloce con curve strette e reattive.</li>
-                <li>Obiettivo: minor tempo complessivo.</li>
                 <li>Penalità: +2 secondi per ogni porta saltata.</li>
               </ul>
             </div>
@@ -387,14 +398,12 @@
             <div class="pass-info-grid">
               <div class="info-item">Atleta: <b>${name}</b></div>
               <div class="info-item">Team: <b>${team}</b></div>
-              <div class="info-item">Modalità: <b>${isDouble}</b></div>
-              <div class="info-item">Codice Pass: <b>SKY-SL-${Math.floor(1000 + Math.random() * 9000)}</b></div>
+              <div class="info-item">Codice Pass: <b>${passCode}</b></div>
             </div>
             <div class="pass-instructions">
               <b>📌 Guida & Regolamento Gara:</b>
               <ul>
                 <li>Tracciato lungo ad alta velocità con salto panoramico.</li>
-                <li>Gestisci la traiettoria per mantenere la massima velocità.</li>
                 ${track === 'Entrambi' ? '<li><b>Nota:</b> Partecipi anche alla classifica Combinata!</li>' : ''}
               </ul>
             </div>
@@ -403,17 +412,18 @@
         `;
       }
 
-      channel.postMessage({
-        type: 'NEW_REGISTRATION',
+      // Invia i dati su Firebase Cloud
+      push(ref(db, 'registrations'), {
         name: name,
         team: team,
         discipline: disc,
         categoryType: categoryType,
+        passCode: passCode,
         timestamp: new Date().toLocaleTimeString()
       });
     });
 
-    function downloadPass() {
+    window.downloadPass = function() {
       const passElement = document.getElementById('passContainer');
       html2canvas(passElement, { scale: 2, backgroundColor: null }).then(canvas => {
         const link = document.createElement('a');
