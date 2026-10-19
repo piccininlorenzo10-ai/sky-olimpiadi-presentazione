@@ -132,18 +132,18 @@
       display: none;
     }
 
-    /* GRIGLIA A 3 COLONNE */
-    .grid-3 {
+    /* GRIGLIA A 4 COLONNE */
+    .grid-4 {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 20px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
     }
 
     .column {
       background: rgba(255, 255, 255, 0.85);
       backdrop-filter: blur(10px);
       border-radius: 25px;
-      padding: 20px;
+      padding: 18px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
       display: flex;
       flex-direction: column;
@@ -158,9 +158,12 @@
     .col-sci-lungo { border: 3px solid #a5b4fc; }
     .col-sci-lungo .col-title { color: #4f46e5; }
 
+    .col-salti { border: 3px solid #f472b6; }
+    .col-salti .col-title { color: #db2777; }
+
     .col-title {
       font-family: 'Mali', cursive;
-      font-size: 18px;
+      font-size: 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -171,9 +174,9 @@
 
     .badge-count {
       background: #f1f5f9;
-      padding: 4px 12px;
+      padding: 4px 10px;
       border-radius: 12px;
-      font-size: 14px;
+      font-size: 13px;
       font-family: 'Fredoka', sans-serif;
       font-weight: 700;
     }
@@ -205,8 +208,8 @@
     }
 
     .ath-details { display: flex; flex-direction: column; gap: 2px; }
-    .ath-name { font-weight: 700; font-size: 15px; color: #0f172a; }
-    .ath-team { font-size: 12px; color: #64748b; }
+    .ath-name { font-weight: 700; font-size: 14px; color: #0f172a; }
+    .ath-team { font-size: 11px; color: #64748b; }
     .ath-code { font-size: 11px; color: #0284c7; font-weight: 700; background: #e0f2fe; padding: 2px 6px; border-radius: 6px; width: fit-content; margin-top: 2px; }
     .ath-status { font-size: 10px; font-weight: 700; margin-top: 3px; }
 
@@ -216,9 +219,9 @@
       background: #dcfce7;
       color: #15803d;
       border: 1px solid #86efac;
-      padding: 5px 10px;
+      padding: 5px 8px;
       border-radius: 10px;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       cursor: pointer;
     }
@@ -228,15 +231,15 @@
       background: #fff1f2;
       color: #e11d48;
       border: 1px solid #fecdd3;
-      padding: 5px 10px;
+      padding: 5px 8px;
       border-radius: 10px;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       cursor: pointer;
     }
     .btn-remove:hover { background: #ffe4e6; }
 
-    .empty-msg { text-align: center; color: #94a3b8; font-size: 13px; margin-top: 40px; }
+    .empty-msg { text-align: center; color: #94a3b8; font-size: 12px; margin-top: 40px; }
   </style>
 </head>
 <body>
@@ -264,38 +267,49 @@
     <div id="checkinResult"></div>
   </div>
 
-  <!-- GRIGLIA 3 SEZIONI -->
-  <div class="grid-3">
+  <!-- GRIGLIA A 4 COLONNE -->
+  <div class="grid-4">
     <!-- COLONNA 1: PATTINAGGIO -->
     <div class="column col-pattinaggio">
       <div class="col-title">
-        <span>⛸️ Pattinaggio Figura</span>
+        <span>⛸️ Pattinaggio</span>
         <span class="badge-count" id="countPat">0</span>
       </div>
       <div class="list-container" id="listPattinaggio">
-        <div class="empty-msg" id="empPat">Nessun iscritto al momento</div>
+        <div class="empty-msg" id="empPat">Nessun iscritto</div>
       </div>
     </div>
 
     <!-- COLONNA 2: SCI CORTO -->
     <div class="column col-sci-corto">
       <div class="col-title">
-        <span>⛷️ Sci - Percorso Corto</span>
+        <span>⛷️ Sci Corto</span>
         <span class="badge-count" id="countSciCorto">0</span>
       </div>
       <div class="list-container" id="listSciCorto">
-        <div class="empty-msg" id="empSciCorto">Nessun iscritto al momento</div>
+        <div class="empty-msg" id="empSciCorto">Nessun iscritto</div>
       </div>
     </div>
 
     <!-- COLONNA 3: SCI LUNGO -->
     <div class="column col-sci-lungo">
       <div class="col-title">
-        <span>🏔️ Sci - Percorso Lungo</span>
+        <span>🏔️ Sci Lungo</span>
         <span class="badge-count" id="countSciLungo">0</span>
       </div>
       <div class="list-container" id="listSciLungo">
-        <div class="empty-msg" id="empSciLungo">Nessun iscritto al momento</div>
+        <div class="empty-msg" id="empSciLungo">Nessun iscritto</div>
+      </div>
+    </div>
+
+    <!-- COLONNA 4: SALTI CON GLI SCI -->
+    <div class="column col-salti">
+      <div class="col-title">
+        <span>🎿 Salti Sci</span>
+        <span class="badge-count" id="countSalti">0</span>
+      </div>
+      <div class="list-container" id="listSalti">
+        <div class="empty-msg" id="empSalti">Nessun iscritto</div>
       </div>
     </div>
   </div>
@@ -345,19 +359,21 @@
 
     function addAthleteToUI(data, key) {
       if (data.discipline === 'Pattinaggio') {
-        createCard('listPattinaggio', 'empPat', key, data.name, data.team, 'Short + Free Program', data.passCode);
+        createCard('listPattinaggio', 'empPat', key, data.name, data.team, data.passCode);
       } else if (data.categoryType === 'SCI_CORTO') {
-        createCard('listSciCorto', 'empSciCorto', key, data.name, data.team, 'Percorso Corto', data.passCode);
+        createCard('listSciCorto', 'empSciCorto', key, data.name, data.team, data.passCode);
       } else if (data.categoryType === 'SCI_LUNGO') {
-        createCard('listSciLungo', 'empSciLungo', key, data.name, data.team, 'Percorso Lungo', data.passCode);
+        createCard('listSciLungo', 'empSciLungo', key, data.name, data.team, data.passCode);
       } else if (data.categoryType === 'SCI_ENTRAMBI') {
-        createCard('listSciCorto', 'empSciCorto', key + '-c', data.name, data.team, 'Percorso Corto (Doppio)', data.passCode);
-        createCard('listSciLungo', 'empSciLungo', key + '-l', data.name, data.team, 'Percorso Lungo (Doppio)', data.passCode);
+        createCard('listSciCorto', 'empSciCorto', key + '-c', data.name, data.team, data.passCode);
+        createCard('listSciLungo', 'empSciLungo', key + '-l', data.name, data.team, data.passCode);
+      } else if (data.discipline === 'Salti' || data.categoryType === 'SALTI') {
+        createCard('listSalti', 'empSalti', key, data.name, data.team, data.passCode);
       }
       updateCounts();
     }
 
-    function createCard(containerId, emptyMsgId, key, name, team, badgeText, passCode) {
+    function createCard(containerId, emptyMsgId, key, name, team, passCode) {
       const container = document.getElementById(containerId);
       const emptyMsg = document.getElementById(emptyMsgId);
       if (emptyMsg) emptyMsg.style.display = 'none';
@@ -439,9 +455,10 @@
     window.resetAll = function() {
       if (confirm("Vuoi davvero svuotare tutte le iscrizioni?")) {
         set(ref(db, 'registrations'), null);
-        document.getElementById('listPattinaggio').innerHTML = '<div class="empty-msg" id="empPat">Nessun iscritto al momento</div>';
-        document.getElementById('listSciCorto').innerHTML = '<div class="empty-msg" id="empSciCorto">Nessun iscritto al momento</div>';
-        document.getElementById('listSciLungo').innerHTML = '<div class="empty-msg" id="empSciLungo">Nessun iscritto al momento</div>';
+        document.getElementById('listPattinaggio').innerHTML = '<div class="empty-msg" id="empPat">Nessun iscritto</div>';
+        document.getElementById('listSciCorto').innerHTML = '<div class="empty-msg" id="empSciCorto">Nessun iscritto</div>';
+        document.getElementById('listSciLungo').innerHTML = '<div class="empty-msg" id="empSciLungo">Nessun iscritto</div>';
+        document.getElementById('listSalti').innerHTML = '<div class="empty-msg" id="empSalti">Nessun iscritto</div>';
         updateCounts();
       }
     };
@@ -450,6 +467,7 @@
       document.getElementById('countPat').innerText = document.getElementById('listPattinaggio').querySelectorAll('.athlete-card').length;
       document.getElementById('countSciCorto').innerText = document.getElementById('listSciCorto').querySelectorAll('.athlete-card').length;
       document.getElementById('countSciLungo').innerText = document.getElementById('listSciLungo').querySelectorAll('.athlete-card').length;
+      document.getElementById('countSalti').innerText = document.getElementById('listSalti').querySelectorAll('.athlete-card').length;
     }
   </script>
 </body>
