@@ -164,6 +164,9 @@
     .pass-sci-lungo { border: 3px solid #818cf8; background: linear-gradient(180deg, #e0e7ff 0%, #ffffff 100%); }
     .pass-sci-lungo .pass-header-tag { background: #4f46e5; color: white; }
 
+    .pass-salti { border: 3px solid #f472b6; background: linear-gradient(180deg, #fdf2f8 0%, #ffffff 100%); }
+    .pass-salti .pass-header-tag { background: #db2777; color: white; }
+
     .pass-header-tag {
       display: inline-block;
       font-size: 11px;
@@ -236,6 +239,7 @@
           <select id="discipline" required onchange="handleDisciplineChange()">
             <option value="Pattinaggio">⛸️ Pattinaggio di Figura</option>
             <option value="Sci">⛷️ Sci Alpino</option>
+            <option value="Salti">🎿 Salti con gli Sci</option>
           </select>
         </div>
 
@@ -338,7 +342,12 @@
       const team = document.getElementById('teamName').value;
       const disc = document.getElementById('discipline').value;
       const track = document.getElementById('sciTrack').value;
-      const passCode = 'SKY-' + (disc === 'Pattinaggio' ? 'PAT' : 'SCI') + '-' + Math.floor(1000 + Math.random() * 9000);
+      
+      let passPrefix = 'PAT';
+      if (disc === 'Sci') passPrefix = 'SCI';
+      if (disc === 'Salti') passPrefix = 'SAL';
+      
+      const passCode = 'SKY-' + passPrefix + '-' + Math.floor(1000 + Math.random() * 9000);
 
       document.getElementById('formSection').style.display = 'none';
       document.getElementById('confirmationSection').style.display = 'block';
@@ -388,7 +397,7 @@
             <div class="pass-footer">Sky Winter Games 2026 • Pass Ufficiale Sky Sport</div>
           </div>
         `;
-      } else {
+      } else if (disc === 'Sci') {
         categoryType = (track === 'Entrambi') ? 'SCI_ENTRAMBI' : 'SCI_LUNGO';
         const isDouble = (track === 'Entrambi') ? "Doppio Percorso (Corto + Lungo)" : "Percorso Lungo";
         passBox.innerHTML = `
@@ -405,6 +414,27 @@
               <ul>
                 <li>Tracciato lungo ad alta velocità con salto panoramico.</li>
                 ${track === 'Entrambi' ? '<li><b>Nota:</b> Partecipi anche alla classifica Combinata!</li>' : ''}
+              </ul>
+            </div>
+            <div class="pass-footer">Sky Winter Games 2026 • Pass Ufficiale Sky Sport</div>
+          </div>
+        `;
+      } else if (disc === 'Salti') {
+        categoryType = "SALTI";
+        passBox.innerHTML = `
+          <div class="athlete-pass pass-salti">
+            <span class="pass-header-tag">🎿 Official Pass • Salti con gli Sci</span>
+            <div class="pass-title">Pass Atleta: Trampolino Olimpico</div>
+            <div class="pass-info-grid">
+              <div class="info-item">Atleta: <b>${name}</b></div>
+              <div class="info-item">Team: <b>${team}</b></div>
+              <div class="info-item">Codice Pass: <b>${passCode}</b></div>
+            </div>
+            <div class="pass-instructions">
+              <b>📌 Guida & Regolamento Gara:</b>
+              <ul>
+                <li>Volo dal trampolino con valutazione di distanza e stile.</li>
+                <li>Atterraggio pulito obbligatorio (stile Telemark consigliato).</li>
               </ul>
             </div>
             <div class="pass-footer">Sky Winter Games 2026 • Pass Ufficiale Sky Sport</div>
