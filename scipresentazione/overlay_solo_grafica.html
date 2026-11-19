@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Sky Winter Games - Overlay Grafica</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Mali:wght@700&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: transparent;
+      font-family: 'Fredoka', sans-serif;
+    }
+
+    .tv-lower-third {
+      position: absolute;
+      bottom: 52px;
+      left: -1200px;
+      display: flex;
+      align-items: center;
+      opacity: 0;
+      transform: translateY(14px) scale(0.95);
+      transition:
+        left 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 0.45s ease,
+        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      filter: drop-shadow(0 18px 34px rgba(2, 132, 199, 0.32));
+    }
+
+    .tv-lower-third.on-air {
+      left: 52px;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .bib-box {
+      width: 108px;
+      height: 128px;
+      background: linear-gradient(155deg, #38b6ff 0%, #0284c7 65%, #0369a1 100%);
+      border: 3px solid rgba(255, 255, 255, 0.96);
+      border-right: none;
+      border-radius: 30px 0 0 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #ffffff;
+      position: relative;
+      overflow: hidden;
+      z-index: 2;
+    }
+
+    .bib-box::after {
+      content: "";
+      position: absolute;
+      top: -40%;
+      left: -65%;
+      width: 65%;
+      height: 180%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.34), transparent);
+      transform: rotate(22deg);
+      animation: shineSweep 4.2s infinite ease-in-out;
+    }
+
+    @keyframes shineSweep {
+      0%, 68% { left: -65%; }
+      100% { left: 135%; }
+    }
+
+    .bib-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2.2px;
+      text-transform: uppercase;
+      color: #e0f2fe;
+      margin-bottom: 2px;
+    }
+
+    .bib-number {
+      font-family: 'Mali', cursive;
+      font-size: 44px;
+      line-height: 1;
+      color: #ffffff;
+      text-shadow: 0 3px 12px rgba(3, 105, 161, 0.5);
+    }
+
+    .info-card {
+      height: 128px;
+      min-width: 570px;
+      background: linear-gradient(115deg, rgba(255, 255, 255, 0.98) 0%, rgba(240, 249, 255, 0.96) 55%, rgba(224, 231, 255, 0.94) 100%);
+      backdrop-filter: blur(14px);
+      border: 3px solid rgba(125, 211, 252, 0.95);
+      border-left: 3px solid #bae6fd;
+      border-radius: 0 32px 32px 0;
+      padding: 12px 140px 12px 26px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .info-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #38b6ff, #7dd3fc, #c4b5fd, #fef08a);
+      opacity: 0.9;
+    }
+
+    .top-meta {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 4px;
+      z-index: 2;
+    }
+
+    .discipline-badge {
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 3.5px 13px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      border: 1px solid rgba(56, 182, 255, 0.35);
+    }
+
+    .disc-alpino {
+      background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+      color: #0369a1;
+    }
+
+    .disc-salto {
+      background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+      color: #5b21b6;
+      border-color: rgba(139, 92, 246, 0.35);
+    }
+
+    .track-badge {
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 3.5px 13px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .track-corto {
+      background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
+      color: #854d0e;
+      border: 1px solid rgba(234, 179, 8, 0.35);
+    }
+
+    .track-lungo {
+      background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+      color: #3730a3;
+      border: 1px solid rgba(99, 102, 241, 0.35);
+    }
+
+    .track-salto {
+      background: linear-gradient(135deg, #cffafe 0%, #a5f3fc 100%);
+      color: #0e7490;
+      border: 1px solid rgba(6, 182, 212, 0.35);
+    }
+
+    .athlete-name {
+      font-family: 'Mali', cursive;
+      font-size: 33px;
+      color: #0f172a;
+      line-height: 1.1;
+      white-space: nowrap;
+      text-shadow: 0 2px 10px rgba(14, 165, 233, 0.16);
+      z-index: 2;
+    }
+
+    .athlete-team {
+      font-size: 19px;
+      font-weight: 700;
+      color: #0284c7;
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      white-space: nowrap;
+      z-index: 2;
+    }
+
+    /* LOGO SCI CON BORDI ARROTONDATI */
+    .ski-logo-box {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 110px;
+      height: 100px;
+      border-radius: 22px;
+      overflow: hidden;
+      border: 2.5px solid rgba(125, 211, 252, 0.95);
+      background: #ffffff;
+      box-shadow: 0 6px 16px rgba(2, 132, 199, 0.18);
+      z-index: 3;
+    }
+
+    .ski-logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="tv-lower-third" id="lowerThird">
+    <div class="bib-box">
+      <span class="bib-label">PETT.</span>
+      <span class="bib-number" id="dispBib">01</span>
+    </div>
+    <div class="info-card">
+      <div class="top-meta">
+        <span class="discipline-badge disc-alpino" id="dispDisc">⛷️ Sci Alpino</span>
+        <span class="track-badge track-corto" id="dispTrack">Percorso Corto</span>
+      </div>
+      <div class="athlete-name" id="dispName">Fery Naly</div>
+      <div class="athlete-team" id="dispTeam">☁️ Sky Team Italia</div>
+
+      <div class="ski-logo-box">
+        <img src="17529.png" alt="Logo Sci">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'skyWinterGames_sciatoreOverlay';
+
+    function applyState(state) {
+      if (!state) return;
+
+      document.getElementById('dispBib').innerText = state.bib || '01';
+      document.getElementById('dispName').innerText = state.name || 'Atleta Sky';
+      document.getElementById('dispTeam').innerText = '☁️ ' + (state.team || 'Sky Team');
+
+      const discBadge = document.getElementById('dispDisc');
+      if (state.discipline === 'salto') {
+        discBadge.innerText = '🎿 Salto con gli Sci';
+        discBadge.className = 'discipline-badge disc-salto';
+      } else {
+        discBadge.innerText = '⛷️ Sci Alpino';
+        discBadge.className = 'discipline-badge disc-alpino';
+      }
+
+      const trackBadge = document.getElementById('dispTrack');
+      if (state.track === 'lungo') {
+        trackBadge.innerText = 'Percorso Lungo';
+        trackBadge.className = 'track-badge track-lungo';
+      } else if (state.track === 'salto') {
+        trackBadge.innerText = 'Salto con gli Sci';
+        trackBadge.className = 'track-badge track-salto';
+      } else {
+        trackBadge.innerText = 'Percorso Corto';
+        trackBadge.className = 'track-badge track-corto';
+      }
+
+      const banner = document.getElementById('lowerThird');
+      if (state.visible) {
+        banner.classList.add('on-air');
+      } else {
+        banner.classList.remove('on-air');
+      }
+    }
+
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      applyState(JSON.parse(saved));
+    }
+
+    window.addEventListener('storage', (event) => {
+      if (event.key === STORAGE_KEY && event.newValue) {
+        applyState(JSON.parse(event.newValue));
+      }
+    });
+  </script>
+</body>
+</html>
